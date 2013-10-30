@@ -2,10 +2,6 @@ happy_balls
 ===========
 
 
-recreate projects, add simple grpahics, push to github
-
-package - com.smhv.happy_balls
-
 
 
 
@@ -23,7 +19,7 @@ architecture features, optimizations
 
 * git workflow - stable master, work in branches
 * maven integration, remove libs from git - make them downloadable
-
+* attach sourses to all jars
 
 
 design features

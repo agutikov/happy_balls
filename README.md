@@ -16,6 +16,7 @@ Why nothing about it in libgdx Wiki?
 * correct activity lifecycle for android and ApplicationListener implementation
   in libgdx at all
 
+* How to copy and rotate loaded texture?
 
 
 
@@ -28,7 +29,8 @@ architecture features, optimizations
 
 * atlas
 * tiled map
-* background initialization
+* initialization in background
+
 
 
 

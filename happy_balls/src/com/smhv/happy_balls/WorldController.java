@@ -3,11 +3,13 @@ package com.smhv.happy_balls;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.badlogic.gdx.math.Vector2;
+
 
 public class WorldController {
 	
 	enum Keys {
-		LEFT, RIGHT, UP, DOWN
+		LEFT, RIGHT, UP, DOWN, TOUCH
 	}
 	
 	public Player player;
@@ -18,6 +20,7 @@ public class WorldController {
 		keys.put(Keys.RIGHT, false);
 		keys.put(Keys.UP, false);
 		keys.put(Keys.DOWN, false);
+		keys.put(Keys.TOUCH, false);
 	};
 
 	public WorldController(World world) {
@@ -59,6 +62,22 @@ public class WorldController {
 		keys.get(keys.put(Keys.DOWN, false));
 	}
 	
+	public void touchDown(Vector2 place) {
+		
+		keys.get(keys.put(Keys.TOUCH, true));
+		player.setDest(place);
+	}
+	
+	public void touchDragged(Vector2 newPlace) {
+		player.setDest(newPlace);
+	}
+	
+	public void touchUp() {
+		player.stop();
+		player.clearDest();
+		keys.get(keys.put(Keys.TOUCH, false));
+	}
+	
 	public void update(float delta) {
 
 		processInput();
@@ -72,28 +91,33 @@ public class WorldController {
 		downReleased();
 		upReleased();
 	}
+	
 	private void processInput() {
-		if (keys.get(Keys.LEFT)) 
-			player.getVelocity().x = -Player.SPEED;
+		
+		if (!keys.get(Keys.TOUCH)) {
+		
+			if (keys.get(Keys.LEFT)) 
+				player.go(-1, 0);
+				
 			
-		
-		if (keys.get(Keys.RIGHT))
-			player.getVelocity().x =Player.SPEED;
-		
-		if (keys.get(Keys.UP)) 
-			player.getVelocity().y = Player.SPEED;
-		
-		
-		if (keys.get(Keys.DOWN))
-			player.getVelocity().y = -Player.SPEED;
-		
-		if ((keys.get(Keys.LEFT) && keys.get(Keys.RIGHT)) ||
-				(!keys.get(Keys.LEFT) && (!keys.get(Keys.RIGHT)))) 
-			player.getVelocity().x = 0;			
-		
-		if ((keys.get(Keys.UP) && keys.get(Keys.DOWN)) ||
-				(!keys.get(Keys.UP) && (!keys.get(Keys.DOWN)))) 
-			player.getVelocity().y = 0;			
-		
+			if (keys.get(Keys.RIGHT))
+				player.go(1, 0);
+			
+			if (keys.get(Keys.UP)) 
+				player.go(0, 1);
+			
+			
+			if (keys.get(Keys.DOWN))
+				player.go(0, -1);
+
+			if ((keys.get(Keys.DOWN) && keys.get(Keys.UP)) ||
+					(!keys.get(Keys.DOWN) && !keys.get(Keys.UP)))
+				player.stop(false, true);
+
+			if ((keys.get(Keys.LEFT) && keys.get(Keys.RIGHT)) ||
+					(!keys.get(Keys.LEFT) && !keys.get(Keys.RIGHT)))
+				player.stop(true, false);
+		}
+
 	}
 }

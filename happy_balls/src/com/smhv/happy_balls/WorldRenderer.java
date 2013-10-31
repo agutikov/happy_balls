@@ -140,7 +140,12 @@ public class WorldRenderer {
 	}
 	
 	private void drawPlayer() {
-		spriteBatch.draw(textureRegions.get("player"), world.getPlayer().getPosition().x* ppuX, world.getPlayer().getPosition().y * ppuY,Player.SIZE * ppuX, Player.SIZE * ppuY);
+		spriteBatch.draw(textureRegions.get("player"), 
+				world.getPlayer().getPosition().x* ppuX - Player.SIZE * ppuX / 2, 
+				world.getPlayer().getPosition().y * ppuY - Player.SIZE * ppuX / 2,
+				Player.SIZE * ppuX / 2, Player.SIZE * ppuY / 2,
+				Player.SIZE * ppuX, Player.SIZE * ppuY, 
+				1, 1, 90, true);
 		
 		/*renderer.setProjectionMatrix(cam.combined);
 		Player player = world.getPlayer();

@@ -49,7 +49,7 @@ public class BGame extends Game {
 		super.render();
 		
 		long curr = TimeUtils.millis();
-		if (curr - lastRenderTime < 1000) {
+		if (curr - lastRenderTime > 100000) {
 
 			logg("render()" + curr);
 			

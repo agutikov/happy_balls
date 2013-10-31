@@ -16,9 +16,11 @@ Why nothing about it in libgdx Wiki?
 * correct activity lifecycle for android and ApplicationListener implementation
   in libgdx at all
 
-* How to copy and rotate loaded texture?
+* How to copy and rotate loaded texture and then use it rotated?
 
+* How to resize window and save size of game screen but just change viewport?
 
+* What about full screen on PC and android?
 
 architecture features, optimizations
 ------------------------------------

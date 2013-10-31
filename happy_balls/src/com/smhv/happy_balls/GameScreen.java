@@ -7,6 +7,7 @@ import com.badlogic.gdx.Screen;
 
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.utils.TimeUtils;
+import com.badlogic.gdx.math.Vector2;
 
 public class GameScreen implements InputProcessor, Screen {
 
@@ -36,7 +37,7 @@ public class GameScreen implements InputProcessor, Screen {
 	public void render(float delta) {
 	
 		long curr = TimeUtils.millis();
-		if (curr - lastRenderTime < 1000) {
+		if (curr - lastRenderTime > 100000) {
 			logg("render()" + curr);			
 			lastRenderTime = curr;
 		}
@@ -101,6 +102,8 @@ public class GameScreen implements InputProcessor, Screen {
 	@Override
 	public boolean keyDown(int keycode) {
 		
+		world.getPlayer().clearDest();
+		
 		switch(keycode) {
 		case Input.Keys.UP:
 			controller.upPressed();
@@ -152,7 +155,10 @@ public class GameScreen implements InputProcessor, Screen {
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 		logg("touchDown("+screenX+", "+screenY+", "+pointer+", "+button+")");
 
-		ChangeNavigation(screenX, screenY);
+
+		controller.touchDown(new Vector2(screenX / renderer.ppuX, (height-screenY) / renderer.ppuY));
+//		ChangeNavigation(screenX, screenY);
+		
 		return false;
 	}
 
@@ -160,13 +166,17 @@ public class GameScreen implements InputProcessor, Screen {
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
 		logg("touchUp("+screenX+", "+screenY+", "+pointer+", "+button+")");
 
-		controller.resetWay();
+		
+		controller.touchUp();
+//		controller.resetWay();
 		return false;
 	}
 
 	@Override
 	public boolean touchDragged(int screenX, int screenY, int pointer) {
 		logg("touchDragged("+screenX+", "+screenY+", "+pointer+")");
+
+		controller.touchDragged(new Vector2(screenX / renderer.ppuX, (height-screenY) / renderer.ppuY));
 		
 		return false;
 	}

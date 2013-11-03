@@ -2,7 +2,13 @@ happy_balls
 ===========
 
 
+TODO
+----
 
+* Docs
+	- javadocs, comments
+	- model class hierarchy
+	- engine internals (general), model internals, rendering internals
 
 
 questions
@@ -30,7 +36,6 @@ architecture features, optimizations
 	- start - left bottom
 	- map objects - in linked 2-dim array - for simply checking collisions
 	- map layers: flor, boxes and walls, player and enemies, effects (blows)
-	- "changed" flags for map's objects
 * rendering model:
 	- layers - 2d array of blocks
 	- coordinates of sprites in rendering format
@@ -42,6 +47,7 @@ architecture features, optimizations
 * game world model and whole game model (with vieport position, player settings,
   scores, etc...)
 
+* check map correctness during loading
 
 * git workflow - stable master, work in branches
 * maven integration, remove libs from git - make them downloadable

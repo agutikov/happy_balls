@@ -9,71 +9,72 @@ import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.math.Vector2;
 
-public class GameScreen implements InputProcessor, Screen {
+import com.badlogic.gdx.graphics.FPSLogger;
 
-	long lastRenderTime = 0;
+import com.smhv.happy_balls.model.*;
 
+
+public class GameScreen implements Screen {
+
+	private World 			world;
+	private WorldRenderingModel 	model;
+	private WorldRenderer 	renderer;
+	private InputController	input;
+//	public FPSLogger fpsLogger = new FPSLogger();
 	
-	void logg(String func) {
-		if (Gdx.app != null) {
-			Gdx.app.debug("GameScreen", func);
-		} else {
-			System.out.print(func + ": !Gdx.app\n");
-		}
+	
+
+
+	/*
+	 * Initialize game engine, no real game data loaded.
+	 */	
+	public GameScreen() {
+		model = new WorldRenderingModel();
+		world = new World(model);
+		renderer = new WorldRenderer(model);
+		input = new InputController(world);
 	}
 	
-	private World 			world;
-	private WorldRenderer 	renderer;
-	private WorldController	controller;
-
-//	private int width;
-	private int height;
+	/*
+	 * Load all resources like textures, sound,
+	 * that this screen would use.
+	 * For now is not necessary to load data during playing.
+	 */
+	public void loadResources() {
+		model.loadTextures();
+	}
 	
-	public GameScreen() {
-		logg("GameScree()");
+	/*
+	 * Level should be already set before calling setScreen().
+	 */
+	public void setLevel(Level lvl) {
+		world.initLevel(lvl);
 	}
 
 	@Override
-	public void render(float delta) {
-	
-		long curr = TimeUtils.millis();
-		if (curr - lastRenderTime > 100000) {
-			logg("render()" + curr);			
-			lastRenderTime = curr;
-		}
-		
-		Gdx.gl.glClearColor(1, 1, 1, 1);
-		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
-
-		controller.update(delta);
+	public void render(float delta) {	
+		//TODO: deWiTTERS game sloop
+		input.processInput();
+		world.update(delta);
 		renderer.render();
-
 	}
 
 	@Override
 	public void resize(int width, int height) {
-		logg("resize("+width+", "+height+")");
 		
 		renderer.setSize(width, height);
-//		this.width = width;
-		this.height = height;
 
 	}
 
 	@Override
-	public void show() {
-		logg("show()");
+	public void show() {	
 		
-		world = new World();
-		renderer = new WorldRenderer(world);
-		controller = new WorldController(world);
-		Gdx.input.setInputProcessor(this);
+		Gdx.input.setInputProcessor(input);
 
 	}
 
 	@Override
 	public void hide() {
-		logg("hide()");
 		Gdx.input.setInputProcessor(null);
 
 	}
@@ -81,134 +82,23 @@ public class GameScreen implements InputProcessor, Screen {
 	@Override
 	public void pause() {
 
-		logg("pause()");
 
 	}
 
 	@Override
 	public void resume() {
 
-		logg("resume()");
 
 	}
 
 	@Override
 	public void dispose() {
-		logg("dispose()");
+		
+		
 		Gdx.input.setInputProcessor(null);
 
 	}
 
-	@Override
-	public boolean keyDown(int keycode) {
-		
-		world.getPlayer().clearDest();
-		
-		switch(keycode) {
-		case Input.Keys.UP:
-			controller.upPressed();
-			break;
-		case Input.Keys.DOWN:
-			controller.downPressed();
-			break;
-		case Input.Keys.LEFT:
-			controller.leftPressed();
-			break;
-		case Input.Keys.RIGHT:
-			controller.rightPressed();
-			break;
-		};
-		
-		logg("keyDown("+keycode+")");
-		return false;
-	}
-
-	@Override
-	public boolean keyUp(int keycode) {
-
-		switch(keycode) {
-		case Input.Keys.UP:
-			controller.upReleased();
-			break;
-		case Input.Keys.DOWN:
-			controller.downReleased();
-			break;
-		case Input.Keys.LEFT:
-			controller.leftReleased();
-			break;
-		case Input.Keys.RIGHT:
-			controller.rightReleased();
-			break;
-		};
-		
-		logg("keyUp("+keycode+")");
-		return false;
-	}
-
-	@Override
-	public boolean keyTyped(char character) {
-		logg("keyTyped('"+character+"')");
-		return false;
-	}
-
-	@Override
-	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		logg("touchDown("+screenX+", "+screenY+", "+pointer+", "+button+")");
-
-
-		controller.touchDown(new Vector2(screenX / renderer.ppuX, (height-screenY) / renderer.ppuY));
-//		ChangeNavigation(screenX, screenY);
-		
-		return false;
-	}
-
-	@Override
-	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-		logg("touchUp("+screenX+", "+screenY+", "+pointer+", "+button+")");
-
-		
-		controller.touchUp();
-//		controller.resetWay();
-		return false;
-	}
-
-	@Override
-	public boolean touchDragged(int screenX, int screenY, int pointer) {
-		logg("touchDragged("+screenX+", "+screenY+", "+pointer+")");
-
-		controller.touchDragged(new Vector2(screenX / renderer.ppuX, (height-screenY) / renderer.ppuY));
-		
-		return false;
-	}
-
-	@Override
-	public boolean mouseMoved(int x, int y) {
-//		ChangeNavigation(x, y);
-//		logg("mouseMoved("+x+", "+y+")");
-		return false;
-	}
-
-	@Override
-	public boolean scrolled(int amount) {
-		logg("scrolled("+amount+")");
-		return false;
-	}
 	
-
-	private void ChangeNavigation(int x, int y){
-		controller.resetWay();
-		if(height-y >  controller.player.getPosition().y * renderer.ppuY)
-			controller.upPressed();
-		
-		if(height-y <  controller.player.getPosition().y * renderer.ppuY)
-			controller.downPressed();
-		
-		if ( x< controller.player.getPosition().x * renderer.ppuX) 
-			controller.leftPressed();
-			
-		if (x> (controller.player.getPosition().x +Player.SIZE)* renderer.ppuX)
-			controller.rightPressed();
-			
-	}
 	
 }

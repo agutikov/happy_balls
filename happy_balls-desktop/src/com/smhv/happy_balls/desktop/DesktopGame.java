@@ -12,7 +12,7 @@ public class DesktopGame {
 	public static void main(String[] args) {
 	      LwjglApplicationConfiguration cfg = new LwjglApplicationConfiguration();
 	      cfg.title = "Happy Balls";
-	      cfg.useGL20 = true;
+	      cfg.useGL20 = false;
 	      cfg.width = 512;
 	      cfg.height = 512;
 			

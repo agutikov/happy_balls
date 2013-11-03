@@ -7,22 +7,12 @@ import com.badlogic.gdx.Game;
 
 public class BGame extends Game {
 
-	long lastRenderTime = 0;
 
-	
-	void logg(String func) {
-		if (Gdx.app != null) {
-			Gdx.app.debug("BGame", func);
-		} else {
-			System.out.print(func + ": !Gdx.app\n");
-		}
-	}
 	
 
 	public GameScreen gameScreen;
 	
 	public BGame() {
-		logg("constructor BGame()");
 	}
 	
 	
@@ -30,17 +20,21 @@ public class BGame extends Game {
 	public void create() {
 
 		Gdx.app.setLogLevel(Application.LOG_DEBUG);
-		
-		logg("create()");
+
+		Level lvl = Level.createTestLevel();
 		
 		gameScreen = new GameScreen();
+		
+		gameScreen.loadResources();
+		
+		gameScreen.setLevel(lvl);	
+		
 		setScreen(gameScreen);
 	}
 
 	@Override
 	public void resize(int width, int height) {
 		super.resize(width, height);
-		logg("resize("+width+", "+height+")");
 
 	}
 
@@ -48,20 +42,12 @@ public class BGame extends Game {
 	public void render() {
 		super.render();
 		
-		long curr = TimeUtils.millis();
-		if (curr - lastRenderTime > 100000) {
-
-			logg("render()" + curr);
-			
-			lastRenderTime = curr;
-		}
 	}
 
 	@Override
 	public void pause() {
 		super.pause();
 		
-		logg("pause()");
 
 	}
 
@@ -69,7 +55,6 @@ public class BGame extends Game {
 	public void resume() {
 		super.resume();
 		
-		logg("resume()");
 
 	}
 
@@ -77,7 +62,6 @@ public class BGame extends Game {
 	public void dispose() {
 		super.dispose();
 		
-		logg("dispose()");
 
 	}
 	

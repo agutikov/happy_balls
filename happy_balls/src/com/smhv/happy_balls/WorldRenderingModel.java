@@ -13,10 +13,7 @@ import com.smhv.happy_balls.model.FixedObject;
 public class WorldRenderingModel {
 
 	public WorldRenderer renderer;
-	
-	public float ppuX = 64;	// пикселей на ячейку мира по X 
-	public float ppuY = 64;	// пикселей на ячейку мира по Y 
-	
+		
 	/*
 	 * Convert orientation to degrees.
 	 */
@@ -119,8 +116,7 @@ public class WorldRenderingModel {
 	// world coordinates
 	public void moveProtagonistTo (Vector2 pos) {	
 		
-		renderer.SetCamera(pos.x - renderer.cam.viewportWidth/2 + 0.5f, 
-				pos.y - renderer.cam.viewportHeight/2 + 0.5f);
+		renderer.SetCamera(pos.x, pos.y);
 
 		protogonistPosition  = pos;
 	}

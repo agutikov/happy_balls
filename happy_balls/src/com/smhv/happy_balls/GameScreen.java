@@ -29,10 +29,14 @@ public class GameScreen implements Screen {
 	 * Initialize game engine, no real game data loaded.
 	 */	
 	public GameScreen() {
+		//TODO: создавать всё независимым и потом биндить
+		
 		model = new WorldRenderingModel();
 		world = new World(model);
 		renderer = new WorldRenderer(model);
 		input = new InputController(world);
+		
+		model.renderer = renderer;
 	}
 	
 	/*
@@ -62,6 +66,7 @@ public class GameScreen implements Screen {
 	@Override
 	public void resize(int width, int height) {
 		
+		model.touch();
 		renderer.setSize(width, height);
 
 	}

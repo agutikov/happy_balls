@@ -28,6 +28,8 @@ Why nothing about it in libgdx Wiki?
 
 * What about full screen on PC and android?
 
+* Есть ли смысл заменить стандартные контейнеры на libgdx-овские?
+
 architecture features, optimizations
 ------------------------------------
 

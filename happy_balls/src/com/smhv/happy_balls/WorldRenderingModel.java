@@ -12,8 +12,10 @@ import com.smhv.happy_balls.model.FixedObject;
 
 public class WorldRenderingModel {
 
-	public float ppuX = 512 / WorldRenderer.CAMERA_WIDTH;	// пикселей на ячейку мира по X 
-	public float ppuY = 512 / WorldRenderer.CAMERA_HEIGHT;	// пикселей на ячейку мира по Y 
+	public WorldRenderer renderer;
+	
+	public float ppuX = 64;	// пикселей на ячейку мира по X 
+	public float ppuY = 64;	// пикселей на ячейку мира по Y 
 	
 	/*
 	 * Convert orientation to degrees.
@@ -29,8 +31,20 @@ public class WorldRenderingModel {
 		}
 	}
 	
-	public boolean changed = true;	
-
+	private boolean changedRenderingEnabled = false;
+	private boolean changed = true;	
+	public boolean isChanged() {
+		if (changedRenderingEnabled)
+			return changed;
+		else
+			return true;
+	}
+	public void touch() {
+		changed = true;
+	}
+	public void save() {
+		changed = false;
+	}
 	
 	public class GameTexture {		
 		public TextureRegion textureRegion;		
@@ -103,21 +117,23 @@ public class WorldRenderingModel {
 	public ArrayList<Vector2> enemiesPositions;
 	
 	// world coordinates
-	public void moveProtagonistTo (Vector2 pos) {		
-		protogonistPosition  = new Vector2( pos.x * ppuX, pos.y * ppuY);
+	public void moveProtagonistTo (Vector2 pos) {	
+		
+		renderer.SetCamera(pos.x - renderer.cam.viewportWidth/2 + 0.5f, 
+				pos.y - renderer.cam.viewportHeight/2 + 0.5f);
+
+		protogonistPosition  = pos;
 	}
 	
 	// world coordinates
 	public void addEnemy (Vector2 pos) {
-		enemiesPositions.add(
-				new Vector2(pos.x * ppuX, pos.y * ppuY));
+		enemiesPositions.add(pos);
 	}
 	
 	// world coordinates
 	public void moveEnemyTo (int enemyIndex, Vector2 pos) {
 		
-		enemiesPositions.get(enemyIndex).x = pos.x * ppuX;
-		enemiesPositions.get(enemyIndex).y = pos.y * ppuY;
+		enemiesPositions.set(enemyIndex, pos);
 	}
 	
 	public WorldRenderingModel() {				

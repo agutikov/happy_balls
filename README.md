@@ -5,6 +5,9 @@ happy_balls
 TODO
 ----
 
+run on android emulator
+
+
 * Docs
 	- javadocs, comments
 	- model class hierarchy
@@ -55,10 +58,9 @@ architecture features, optimizations
 * maven integration, remove libs from git - make them downloadable
 * attach sourses to all jars
 
-* atlas
+* atlas - packer utility, automatic packing during build
 * tiled map
 * initialization in background
-
 
 
 

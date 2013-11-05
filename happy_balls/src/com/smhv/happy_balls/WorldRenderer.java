@@ -21,7 +21,6 @@ import com.smhv.happy_balls.WorldRenderingModel.RenderingCell;
 public class WorldRenderer {
 	
 	private WorldRenderingModel world;
-	//TODO: объединить WorldRenderingModel и WorldRenderer
 	// TODO: добавить partialRendering - рендерить только то что попадает в viewport
 	// TODO: рендерить только то что visible
 	// TODO: нормально рисовать текстуры с альфаканалом - без усиления контрастности со временем

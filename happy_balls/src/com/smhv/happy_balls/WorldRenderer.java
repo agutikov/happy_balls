@@ -8,6 +8,7 @@ package com.smhv.happy_balls;
  */
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.FPSLogger;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -19,19 +20,25 @@ import com.badlogic.gdx.math.Vector2;
 import com.smhv.happy_balls.WorldRenderingModel.RenderingCell;
 
 public class WorldRenderer {
+
+	public FPSLogger fpsLogger = new FPSLogger();
 	
 	private WorldRenderingModel world;
-	// TODO: добавить partialRendering - рендерить только то что попадает в viewport
 	// TODO: рендерить только то что visible
 	// TODO: нормально рисовать текстуры с альфаканалом - без усиления контрастности со временем
 
+	// TODO: добавить partialRendering - рендерить только то что попадает в viewport
+	//TODO: добавить fpslogger и вывод на экран
+	//TODO: сравнить рендеринг всего и только вьюпорта
+	
+	
 	private OrthographicCamera camera;
 	ShapeRenderer renderer;	
 	private SpriteBatch spriteBatch;	
 	Rectangle viewport;	
 	
-	private float ppuX = 64;	// пикселей на ячейку мира по X 
-	private float ppuY = 64;	// пикселей на ячейку мира по Y 
+	private float ppuX = 32;	// пикселей на ячейку мира по X 
+	private float ppuY = 32;	// пикселей на ячейку мира по Y 
 	
     private static final float CAMERA_WIDTH  = 8f;
     private static final float CAMERA_HEIGHT = 8f;
@@ -125,10 +132,8 @@ public class WorldRenderer {
 	public void render() {				
 		GL10 gl = Gdx.graphics.getGL10();
 		
-		if (world.isChanged()) {
-			gl.glClearColor(0.2f, 0.2f, 0.2f, 1);
-			gl.glClear(GL10.GL_COLOR_BUFFER_BIT);			
-		}
+		gl.glClearColor(0.2f, 0.2f, 0.2f, 1);
+		gl.glClear(GL10.GL_COLOR_BUFFER_BIT);		
 
 		gl.glViewport((int) viewport.x, (int) viewport.y, 
 				(int) viewport.width, (int) viewport.height);
@@ -141,6 +146,7 @@ public class WorldRenderer {
 		renderMap();	
 		renderEnemies();
 		renderProtagonist();
+		renderFPS();
 		spriteBatch.end();			 
 	}
 	
@@ -166,9 +172,10 @@ public class WorldRenderer {
 	}
 
 	private void renderProtagonist() {
-		draw(world.protagonistTexture.textureRegion, 
+		drawRotated(world.protagonistTexture.texture.textureRegion, 
 				world.protogonistPosition.x, 
-				world.protogonistPosition.y);		
+				world.protogonistPosition.y,
+				world.protagonistTexture.rot);		
 	}
 
 	private void renderEnemies() {
@@ -192,26 +199,16 @@ public class WorldRenderer {
 	}
 	
 	private void renderMap() {
-		
-		if (world.isChanged()) {			
-			for (int y = 0; y < world.renderingMap.length; y++) {
-				for (int x = 0; x < world.renderingMap[y].length; x++) {
-					renderCell(world.renderingMap[y][x], x, y);
-				}
+					
+		for (int y = 0; y < world.renderingMap.length; y++) {
+			for (int x = 0; x < world.renderingMap[y].length; x++) {
+				renderCell(world.renderingMap[y][x], x, y);
 			}
-			world.save();
-		} else {
-			for (int y = 0; y < world.renderingMap.length; y++) {
-				for (int x = 0; x < world.renderingMap[y].length; x++) {
-					RenderingCell cell = world.renderingMap[y][x];
-					if (cell.changed) {
-						renderCell(cell, x, y);
-						cell.changed = false;
-					}
-				}
-			}
-			
 		}
+		
+	}
+	
+	private void renderFPS() {
 		
 	}
 	

@@ -20,12 +20,17 @@ public class World implements WorldInput {
 	private Protagonist protagonist;	
 	private ArrayList<Enemy> enemies;	
 	
+	//TODO: логика - дать возможность объектам самим делать что захотят и влиять на мир
+	
 	private int width;
 	private int height;
 	
 	public class MapCell {
 //		private FixedObject bottom;
 		private FixedObject top;
+		
+		// enemy sets this pointer by itself during moving
+		public Enemy enemy;
 		
 		public int x;
 		public int y;
@@ -139,7 +144,9 @@ public class World implements WorldInput {
 		}
 	}
 	//TODO: refactor collision detection
-	
+	//TODO: check next position not current - to prevent collision
+	//and if on next frame will be collision - decrease velocity
+	//TODO проходить через один свободный квадрат
 	
 	private void posCorrection(FreeObject obj) {
 		Vector2 pos = obj.getPos();
@@ -268,44 +275,63 @@ public class World implements WorldInput {
 		if (pos.y > height-1) pos.y = height-1;
 	}
 	
-
-	private void touchRenderingModel(FreeObject obj) {
-		Vector2 pos = obj.getPos();
+	private boolean putBombFlag = false;
 	
-		int x = Math.round(pos.x);
-		int y = Math.round(pos.y);		
+	private void kill() {
+		protagonist.alive = false;
+		renderingModel.kill();
+	}
+	
+	private void enemyInteraction() {		
+		int x = Math.round(protagonist.getPos().x);
+		int y = Math.round(protagonist.getPos().y);	
 		
-		if (x > 0) {
-			renderingModel.touchCell(x-1, y);
+		if (map[y][x].enemy != null) {
+			kill();
 		}
-		renderingModel.touchCell(x, y);
-		if (x < width-1) {
-			renderingModel.touchCell(x+1, y);			
-		}
-		
-		if (y < height-1) {
-			renderingModel.touchCell(x, y+1);	
-			if (x > 0)
-				renderingModel.touchCell(x-1, y+1);
-			if (x < width-1)
-				renderingModel.touchCell(x+1, y+1);	
-		}
-		
-		if (y > 0) {
-			renderingModel.touchCell(x, y-1);	
-			if (x > 0)
-				renderingModel.touchCell(x-1, y-1);
-			if (x < width-1)
-				renderingModel.touchCell(x+1, y-1);	
+	}
+	
+	private void moveEnemies(float delta) {
+		int i = 0;
+		for (Enemy e : enemies) {
+			int x = Math.round(e.getPos().x);
+			int y = Math.round(e.getPos().y);	
+			
+			map[y][x].enemy = null;
+			
+			e.update(delta);
+			//TODO: nps должен получать сигналы когда врезается куда-нибудь
+			posCorrection(e);
+			renderingModel.moveEnemyTo(i, e.getPos());
+			i++;
+
+			x = Math.round(e.getPos().x);
+			y = Math.round(e.getPos().y);	
+			
+			map[y][x].enemy = e;
 		}
 	}
 	
 	public void update(float delta) {
 		protagonist.update(delta);
-		posCorrection(protagonist);
-		
+		posCorrection(protagonist);		
 		renderingModel.moveProtagonistTo(protagonist.getPos());
-		touchRenderingModel(protagonist);
+
+		moveEnemies(delta);
+		enemyInteraction();
+		
+		processBomb();
+	}
+	
+	private void processBomb() {
+		if (putBombFlag) {			
+			int x = Math.round(protagonist.getPos().x);
+			int y = Math.round(protagonist.getPos().y);	
+		
+			addBomb(x, y);
+			
+			putBombFlag = false;
+		}
 	}
 
 	@Override
@@ -328,7 +354,7 @@ public class World implements WorldInput {
 
 	@Override
 	public void putBomb() {
-		
+		putBombFlag = true;
 	}
 
 	@Override

@@ -28,21 +28,6 @@ public class WorldRenderingModel {
 		}
 	}
 	
-	private boolean changedRenderingEnabled = false;
-	private boolean changed = true;	
-	public boolean isChanged() {
-		if (changedRenderingEnabled)
-			return changed;
-		else
-			return true;
-	}
-	public void touch() {
-		changed = true;
-	}
-	public void save() {
-		changed = false;
-	}
-	
 	public class GameTexture {		
 		public TextureRegion textureRegion;		
 		public boolean isFullHover;
@@ -65,7 +50,6 @@ public class WorldRenderingModel {
 	}
 	
 	public class RenderingCell {
-		public boolean changed = true;
 		public RenderObject bottom;
 		public RenderObject top;
 	}
@@ -86,11 +70,8 @@ public class WorldRenderingModel {
 		textureMap = objTextureMap;
 		
 		enemyTexture = textureRegions.get("enemy");
-		protagonistTexture = textureRegions.get("player");
-	}
-	
-	public void touchCell(int x, int y) {
-		renderingMap[y][x].changed = true;
+		
+		protagonistTexture = new RenderObject(textureRegions.get("player"), 0);
 	}
 	
 	public void setFixedTop(String objName, int x, int y, FixedObject.Orientation orient) {
@@ -107,11 +88,17 @@ public class WorldRenderingModel {
 		renderingMap[y][x].top = null;
 	}
 	
+	//TODO: перейти на использование спрайтов, в т.ч. и для кеширования повернутых картинок
+	
 	public GameTexture enemyTexture;
-	public GameTexture protagonistTexture;
+	public RenderObject protagonistTexture;
 	
 	public Vector2 protogonistPosition;
 	public ArrayList<Vector2> enemiesPositions;
+	
+	public void kill() {
+		protagonistTexture.rot = 90;
+	}
 	
 	// world coordinates
 	public void moveProtagonistTo (Vector2 pos) {	

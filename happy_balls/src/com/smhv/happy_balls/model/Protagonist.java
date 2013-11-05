@@ -7,7 +7,7 @@ import com.badlogic.gdx.math.Vector2;
 public class Protagonist extends FreeObject {
 
 	
-	
+	public boolean alive = true;
 	
 	
 	public Protagonist(Vector2 pos) {
@@ -23,12 +23,16 @@ public class Protagonist extends FreeObject {
 	public void stop() {
 		setDirection(Direction.NONE);
 	}
-
+	
+	public void update(float delta) {
+		if (alive) {
+			super.update(delta);
+		}
+	}
 
 	public void putBomb() {
 		
 	}
-
 
 	
 }

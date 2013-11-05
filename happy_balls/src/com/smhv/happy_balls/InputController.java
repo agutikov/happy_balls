@@ -35,8 +35,7 @@ public class InputController implements InputProcessor {
 
 	@Override
 	public boolean keyDown(int keycode) {
-		
-		
+
 		switch(keycode) {
 		case Input.Keys.UP:
 			keys.get(keys.put(Keys.UP, true));

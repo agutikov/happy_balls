@@ -20,9 +20,8 @@ public class GameScreen implements Screen {
 	private WorldRenderingModel 	model;
 	private WorldRenderer 	renderer;
 	private InputController	input;
-//	public FPSLogger fpsLogger = new FPSLogger();
 	
-	
+	private boolean running = false;
 
 
 	/*
@@ -57,43 +56,57 @@ public class GameScreen implements Screen {
 
 	@Override
 	public void render(float delta) {	
-		//TODO: deWiTTERS game sloop
-		input.processInput();
-		world.update(delta);
-		renderer.render();
+		//TODO: deWiTTERS game loop
+		
+		if (running) {
+			input.processInput();		
+			world.update(delta);			
+			renderer.render();
+		}
 	}
 
 	@Override
 	public void resize(int width, int height) {
 		
-		model.touch();
 		renderer.setSize(width, height);
 
 	}
 
 	@Override
 	public void show() {	
+		Gdx.app.debug("", "GameScreen.show()");
 		
 		Gdx.input.setInputProcessor(input);
+		
+		running = true;
 
 	}
 
 	@Override
 	public void hide() {
+		Gdx.app.debug("", "GameScreen.hide()");
+		
 		Gdx.input.setInputProcessor(null);
 
+		running = false;
 	}
 
 	@Override
 	public void pause() {
+		Gdx.app.debug("", "GameScreen.pause()");
 
+		
+		
 
+		running = false;
 	}
 
 	@Override
 	public void resume() {
+		Gdx.app.debug("", "GameScreen.resume()");
 
 
+		running = true;
 	}
 
 	@Override

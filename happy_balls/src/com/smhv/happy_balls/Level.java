@@ -69,8 +69,8 @@ public class Level {
 	
 	public static Level createTestLevel() {
 
-		int w = 16;
-		int h = 16;
+		int w = 100;
+		int h = 100;
 		
 		Level lvl = new Level(w, h);
 		
@@ -119,7 +119,9 @@ public class Level {
 
 		lvl.boxes.put("box", boxes);
 		
-		lvl.enemies.add(lvl.new ObjectDescription(10, 10));		
+		for (int i = 10; i < 20; i++) {
+			lvl.enemies.add(lvl.new ObjectDescription(i, i));		
+		}
 		
 		lvl.protDesc = lvl.new ObjectDescription(4, 10);
 		

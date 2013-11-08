@@ -8,6 +8,7 @@ package com.smhv.happy_balls;
  */
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.FPSLogger;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -59,7 +60,7 @@ public class WorldRenderer {
 		// скалируется, сохраняется соотношение сторон и ширина
 		SCALE_X_FREE_VIEWPORT,
 		// скалируется вместе с окном, деформируется
-		SCALE_XY_FREE_VIEWPORT,
+		SCALE_XY,
 		// размер изображения сохраняется, область видимости не меняется при увеличении
 		NON_SCALE_FIXED_VIEWPORT,
 		// область видимости не меняется, вписывается в окно целиком
@@ -90,7 +91,7 @@ public class WorldRenderer {
 			viewport.width = w;
 			viewport.height = h;
 			break;
-		case SCALE_XY_FREE_VIEWPORT:
+		case SCALE_XY:
 			viewport.width = w;
 			viewport.height = h;
 			break;
@@ -188,6 +189,9 @@ public class WorldRenderer {
 	//TODO: cache rotated texture regions 
 	
 	private void renderCell(RenderingCell cell, int x, int y) {
+		if (cell.tinted)
+			spriteBatch.setColor(Color.RED);
+		
 		if (cell.top == null || !cell.top.texture.isFullHover) {
 			if (cell.bottom != null) {
 				drawRotated(cell.bottom.texture.textureRegion, x, y, cell.bottom.rot);
@@ -196,6 +200,9 @@ public class WorldRenderer {
 		if (cell.top != null) {
 			drawRotated(cell.top.texture.textureRegion, x, y, cell.top.rot);
 		}
+		
+		if (cell.tinted)
+			spriteBatch.setColor(Color.WHITE);
 	}
 	
 	private void renderMap() {

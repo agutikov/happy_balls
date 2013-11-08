@@ -17,6 +17,11 @@ public abstract class FreeObject extends WorldObject {
 	
 	protected float speed = 1f;	
 	
+	public abstract void ballsToTheWall();
+
+	public boolean alive = true;
+	
+	
 	protected Vector2 	position = new Vector2();
 	
 	Direction currDirection = Direction.NONE;
@@ -77,9 +82,11 @@ public abstract class FreeObject extends WorldObject {
 //			lastLogTime = curr;
 //		}
 		
-		Vector2 tmp = new Vector2(velocity);
-		tmp.scl(delta);
-		position.add(tmp); 
+		if (alive) {
+			Vector2 tmp = new Vector2(velocity);
+			tmp.scl(delta);
+			position.add(tmp); 
+		}
 	}
 
 }

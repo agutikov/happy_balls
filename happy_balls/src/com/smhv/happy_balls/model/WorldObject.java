@@ -1,7 +1,10 @@
 package com.smhv.happy_balls.model;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+
 
 
 
@@ -12,18 +15,18 @@ public abstract class WorldObject {
 
 	private boolean passThrough;
 	
-	private static Set<String> passableObjects = new HashSet<String>();
-	private static Set<String> nonPassableObjects = new HashSet<String>();
+	private static Map<String, Boolean> passableObjects = new HashMap<String, Boolean>();
 	
 	{
-		passableObjects.add("ground");
+		passableObjects.put("ground", true);
 		
-		nonPassableObjects.add("protagonist");
-		nonPassableObjects.add("enemy");
-		nonPassableObjects.add("wall");
-		nonPassableObjects.add("brick");
-		nonPassableObjects.add("box");
-		nonPassableObjects.add("corner");
+		passableObjects.put("protagonist", false);
+		passableObjects.put("enemy", false);
+		passableObjects.put("wall", false);
+		passableObjects.put("brick", false);
+		passableObjects.put("box", false);
+		passableObjects.put("corner", false);
+		passableObjects.put("bomb", false);
 	}
 
 	public boolean isPassThrough() {
@@ -34,7 +37,7 @@ public abstract class WorldObject {
 	public WorldObject(String n) {
 		name = n;
 
-		passThrough = passableObjects.contains(name);
+		passThrough = passableObjects.get(name);
 	}
 
 	public boolean isVisible() {

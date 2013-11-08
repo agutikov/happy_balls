@@ -1,7 +1,9 @@
 package com.smhv.happy_balls.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import com.badlogic.gdx.Gdx;
@@ -13,12 +15,79 @@ import com.smhv.happy_balls.Level.BoxDescription;
 import com.smhv.happy_balls.Level.ObjectDescription;
 import com.smhv.happy_balls.WorldRenderingModel;
 
+//TODO: пользоваться полиморфизмом - чтобы пихать объекты в списки
+
 public class World implements WorldInput {
 	
 	private WorldRenderingModel renderingModel;
 	
 	private Protagonist protagonist;	
 	private ArrayList<Enemy> enemies;	
+	
+	public class Position {
+		public int x;
+		public int y;
+		public Position (int x, int y) {
+			this.x = x;
+			this.y = y;
+		}
+	}
+	
+	//TODO: механизм создания, удаления и поиска объектов мира вне зависимости от типа
+	
+	//TODO: общий тип "событие-воздействие" в мире, которому в вызываемый метод передается ссылка на мир
+	
+	private Map <Bomb, World.Position> bombs;
+	
+	// TODO: Blow должен создаваться фабрикой членом Bomb (это логично и параметры можно передать)
+	public class Blow {
+
+		private int x;
+		private int y;
+		
+		private float timeLeft;
+		
+		public Blow(int x, int y) {
+			this.x = x;
+			this.y = y;
+			timeLeft = 0.3f;
+		}
+		
+		public void perform(World w) {			
+			w.map[y][x].blow();		
+			if (y > 0)
+				w.map[y - 1][x].blow();
+			if (y < w.height)
+				w.map[y + 1][x].blow();
+			if (x > 0)
+				w.map[y][x - 1].blow();
+			if (x < w.width)
+				w.map[y][x + 1].blow();				
+		}
+		
+		public void cleanup(World w) {			
+			w.map[y][x].unblow();		
+			if (y > 0)
+				w.map[y - 1][x].unblow();
+			if (y < w.height)
+				w.map[y + 1][x].unblow();
+			if (x > 0)
+				w.map[y][x - 1].unblow();
+			if (x < w.width)
+				w.map[y][x + 1].unblow();	
+		}
+		
+		//TODO: общий тип временных объектов
+		
+		public boolean update(float delta) {
+			timeLeft -= delta;
+			
+			return timeLeft <= 0;		
+		}
+
+	}
+	
+	private ArrayList<Blow> blows;
 	
 	//TODO: логика - дать возможность объектам самим делать что захотят и влиять на мир
 	
@@ -27,7 +96,8 @@ public class World implements WorldInput {
 	
 	public class MapCell {
 //		private FixedObject bottom;
-		private FixedObject top;
+		private Bomb bomb;
+		private Box box;
 		
 		// enemy sets this pointer by itself during moving
 		public Enemy enemy;
@@ -35,26 +105,65 @@ public class World implements WorldInput {
 		public int x;
 		public int y;
 		
+		public boolean isBlowing = false;
+		
 		public void setBomb (Bomb b) {
-			top = b;
+			bomb = b;
 			renderingModel.setFixedTop(b.getName(), x, y, b.getOrientation());
 		}
 		public void setGround (GroundSquare g) {
-			if (top == null || !top.isEternal()) {
+			if (box == null || !box.isEternal()) {
 //				bottom = g;
 				renderingModel.setFixedBottom(g.getName(), x, y, g.getOrientation());
 			}
 		}
 		public void setBox (Box box) {
-			top = box;
+			this.box = box;
 			renderingModel.setFixedTop(box.getName(), x, y, box.getOrientation());
+		}
+		public void rmBomb () {
+			bomb = null;
+			renderingModel.rmFixedTop(x, y);
+		}
+		public void rmBox () {
+			box = null;
+			renderingModel.rmFixedTop(x, y);
 		}
 		
 		public boolean isPassable () {
-			if (top != null)
-				return top.isPassThrough();
-			else 
+			if (box != null)
+				return box.isPassThrough();
+			else if (bomb != null)
+				return bomb.isPassThrough(); 
+			//TODO: как нормально обработать ситуацию, когда стоишь на бомбе (она же непроходимая)
+			else
 				return true;
+		}
+		
+		public void blow() {
+			if (box != null && box.isEternal()) {
+				
+			} else {
+				if (box != null && !box.isEternal()) {
+					rmBox();
+				}
+				if (bomb != null) {
+					bomb.detonate();
+				}
+				if (enemy != null) {
+					enemy.alive = false;
+					// а смысл?
+					rmEnemy(enemy);
+					enemy = null;
+				}
+				renderingModel.tint(x, y, true);
+				isBlowing = true;
+			}
+		}
+		
+		public void unblow() {
+			renderingModel.tint(x, y, false);	
+			isBlowing = false;		
 		}
 	}
 	private MapCell[][] map;
@@ -64,6 +173,8 @@ public class World implements WorldInput {
 		renderingModel = m;
 		
 		enemies = new ArrayList<Enemy>();
+		bombs = new HashMap<Bomb, Position>();
+		blows = new ArrayList<Blow>();
 	}
 
 	private Protagonist resetProtagonist(int x, int y) {		
@@ -78,28 +189,31 @@ public class World implements WorldInput {
 		return e;
 	}		
 	private void rmEnemy(Enemy e) {		
+		int index = enemies.indexOf(e);
 		enemies.remove(e);
+		renderingModel.rmEnemy(index);
 	}	
 	private Box addBox(String name, int x, int y, FixedObject.Orientation orientation) {
 		Box b = new Box(name, orientation);
 		map[y][x].setBox(b);
 		return b;
 	}
-	private void rmBox(int x, int y) {
-		
-	}
 	private GroundSquare addGround(int x, int y){
 		GroundSquare g = new GroundSquare();		
 		map[y][x].setGround(g);
 		return g;
 	}
-	private Bomb addBomb(int x, int y) {
-		Bomb b = new Bomb();
-		map[y][x].setBomb(b);
-		return b;
+	private void addBomb(int x, int y) {
+		if (map[y][x].bomb == null) {
+			Bomb b = new Bomb();
+			map[y][x].setBomb(b);
+			bombs.put(b, new Position(x, y));
+		}
 	}
-	private void rmBomb(int x, int y) {
-		
+	private void rmBomb(Bomb b) {
+		Position pos = bombs.get(b);
+		map[pos.y][pos.x].rmBomb();
+		bombs.remove(b);
 	}
 	
 	public void initLevel(Level lvl) {
@@ -146,6 +260,8 @@ public class World implements WorldInput {
 	//TODO: refactor collision detection
 	//TODO: check next position not current - to prevent collision
 	//and if on next frame will be collision - decrease velocity
+	
+	
 	//TODO проходить через один свободный квадрат
 	
 	private void posCorrection(FreeObject obj) {
@@ -154,30 +270,36 @@ public class World implements WorldInput {
 		int x = Math.round(pos.x);
 		int y = Math.round(pos.y);		
 		
+		float passLimit = 0.3f;
 		
 		if (obj.isGoingDown()) {
 			if (y > 0) {
 				// bottom middle
 				if (!map[y-1][x].isPassable()) {
-					if (pos.y < y) 
+					if (pos.y < y) {
 						pos.y = y;
-				}			
-			}
-			if (pos.x > x) {
-				if (y > 0 && x < width-1) {
-					// bottom right
-					if (!map[y-1][x+1].isPassable()) {
-						if (pos.y < y) 
-							pos.y = y;
+						obj.ballsToTheWall();
 					}
-				}
-			} 
-			if (pos.x < x) {
-				if (y > 0 && x > 0) {
-					// bottom left
-					if (!map[y-1][x-1].isPassable()) {
-						if (pos.y < y) 
-							pos.y = y;
+				} else {
+					if (pos.x > x && (pos.x - x) > passLimit) {
+						if (y > 0 && x < width-1) {
+							// bottom right
+							if (!map[y-1][x+1].isPassable()) {
+								if (pos.y < y) {
+									pos.y = y;
+								}
+							}
+						}
+					} 
+					if (pos.x < x && (x - pos.x) > passLimit) {
+						if (y > 0 && x > 0) {
+							// bottom left
+							if (!map[y-1][x-1].isPassable()) {
+								if (pos.y < y) {
+									pos.y = y;	
+								}
+							}
+						}
 					}
 				}
 			}
@@ -187,25 +309,30 @@ public class World implements WorldInput {
 			if (y < height-1) {
 				// top middle
 				if (!map[y+1][x].isPassable()) {
-					if (pos.y > y) 
+					if (pos.y > y) {
 						pos.y = y;
-				}
-			}
-			if (pos.x > x) {
-				if (y < height-1 && x < width-1) {
-					// top right
-					if (!map[y+1][x+1].isPassable()) {
-						if (pos.y > y) 
-							pos.y = y;
+						obj.ballsToTheWall();
 					}
-				}
-			} 
-			if (pos.x < x) {
-				if (y < height-1 && x > 0) {
-					// top left
-					if (!map[y+1][x-1].isPassable()) {
-						if (pos.y > y) 
-							pos.y = y;
+				} else {
+					if (pos.x > x && (pos.x - x) > passLimit) {
+						if (y < height-1 && x < width-1) {
+							// top right
+							if (!map[y+1][x+1].isPassable()) {
+								if (pos.y > y) {
+									pos.y = y;
+								}
+							}
+						}
+					} 
+					if (pos.x < x && (x - pos.x) > passLimit) {
+						if (y < height-1 && x > 0) {
+							// top left
+							if (!map[y+1][x-1].isPassable()) {
+								if (pos.y > y) {
+									pos.y = y;
+								}
+							}
+						}
 					}
 				}
 			}
@@ -215,25 +342,30 @@ public class World implements WorldInput {
 			if (x > 0) {
 				// middle left
 				if (!map[y][x-1].isPassable()) {
-					if (pos.x < x) 
-						pos.x = x;				
-				}
-			}
-			if (pos.y > y) {
-				if (y < height-1 && x > 0) {
-					// top left
-					if (!map[y+1][x-1].isPassable()) {
-						if (pos.x < x) 
-							pos.x = x;
+					if (pos.x < x) {
+						pos.x = x;	
+						obj.ballsToTheWall();
 					}
-				}
-			}
-			if (pos.y < y) {
-				if (y > 0 && x > 0) {
-					// bottom left
-					if (!map[y-1][x-1].isPassable()) {
-						if (pos.x < x) 
-							pos.x = x;
+				} else {
+					if (pos.y > y && (pos.y - y) > passLimit) {
+						if (y < height-1 && x > 0) {
+							// top left
+							if (!map[y+1][x-1].isPassable()) {
+								if (pos.x < x) {
+									pos.x = x;
+								}
+							}
+						}
+					}
+					if (pos.y < y && (y - pos.y) > passLimit) {
+						if (y > 0 && x > 0) {
+							// bottom left
+							if (!map[y-1][x-1].isPassable()) {
+								if (pos.x < x) {
+									pos.x = x;
+								}
+							}
+						}
 					}
 				}
 			}
@@ -243,28 +375,33 @@ public class World implements WorldInput {
 			if (x < width-1) {
 				// middle right
 				if (!map[y][x+1].isPassable()) {
-					if (pos.x > x) 
-						pos.x = x;
+					if (pos.x > x) {
+						pos.x = x; 
+						obj.ballsToTheWall();
+					}
+				} else {
+					if (pos.y > y && (pos.y - y) > passLimit) {
+						if (y < height-1 && x < width-1) {
+							// top right
+							if (!map[y+1][x+1].isPassable()) {
+								if (pos.x > x) {
+									pos.x = x;
+								}
+							}
+						}
+					} 
+					if (pos.y < y && (y - pos.y) > passLimit) {
+						if (y > 0 && x < width-1) {
+							// bottom right
+							if (!map[y-1][x+1].isPassable()) {
+								if (pos.x > x) {
+									pos.x = x;
+								}
+							}
+						}
+					} 
 				}
 			}
-			if (pos.y > y) {
-				if (y < height-1 && x < width-1) {
-					// top right
-					if (!map[y+1][x+1].isPassable()) {
-						if (pos.x > x) 
-							pos.x = x;
-					}
-				}
-			} 
-			if (pos.y < y) {
-				if (y > 0 && x < width-1) {
-					// bottom right
-					if (!map[y-1][x+1].isPassable()) {
-						if (pos.x > x) 
-							pos.x = x;
-					}
-				}
-			} 
 		}
 		
 		
@@ -300,7 +437,7 @@ public class World implements WorldInput {
 			map[y][x].enemy = null;
 			
 			e.update(delta);
-			//TODO: nps должен получать сигналы когда врезается куда-нибудь
+			//TODO: NPC должен получать сигналы когда врезается куда-нибудь
 			posCorrection(e);
 			renderingModel.moveEnemyTo(i, e.getPos());
 			i++;
@@ -315,15 +452,25 @@ public class World implements WorldInput {
 	public void update(float delta) {
 		protagonist.update(delta);
 		posCorrection(protagonist);		
+		{
+			int x = Math.round(protagonist.getPos().x);
+			int y = Math.round(protagonist.getPos().y);	
+			
+			if (map[y][x].isBlowing) {
+				kill();
+			}
+		}		
 		renderingModel.moveProtagonistTo(protagonist.getPos());
 
 		moveEnemies(delta);
 		enemyInteraction();
 		
-		processBomb();
+		processBombing();
+		updateBombs(delta);
+		updateBlows(delta);
 	}
 	
-	private void processBomb() {
+	private void processBombing() {
 		if (putBombFlag) {			
 			int x = Math.round(protagonist.getPos().x);
 			int y = Math.round(protagonist.getPos().y);	
@@ -334,6 +481,38 @@ public class World implements WorldInput {
 		}
 	}
 
+	private void updateBombs(float delta) {		
+		ArrayList <Bomb> removedBombs = new ArrayList <Bomb>();
+		
+		for(Map.Entry<Bomb, Position> entry : bombs.entrySet()) {
+			if (entry.getKey().update(delta)) {
+				Blow b = new Blow(entry.getValue().x, entry.getValue().y);
+				blows.add(b);
+				b.perform(this);
+				removedBombs.add(entry.getKey());
+			}
+		}
+		for (Bomb b : removedBombs) {
+			rmBomb(b);			
+		}
+		removedBombs.clear();
+	}
+	
+	private void updateBlows(float delta) {
+		ArrayList <Blow> removedBlows = new ArrayList <Blow>();
+		
+		for (Blow b : blows) {
+			if (b.update(delta)) {
+				b.cleanup(this);
+				removedBlows.add(b);
+			}			
+		}
+		for (Blow b : removedBlows) {
+			blows.remove(b);			
+		}
+		removedBlows.clear();
+	}
+	
 	@Override
 	public void go(ControlDirection dir) {		
 		FreeObject.Direction d = FreeObject.Direction.NONE;

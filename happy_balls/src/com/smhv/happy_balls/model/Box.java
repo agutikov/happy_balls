@@ -6,7 +6,7 @@ public class Box extends FixedObject {
 	private boolean breakable;
 	
 	public boolean isEternal() {
-		return breakable;
+		return !breakable;
 	}
 	
 	public Box(String type, Orientation orient) {

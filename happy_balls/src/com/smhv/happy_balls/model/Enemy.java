@@ -22,24 +22,27 @@ public class Enemy extends FreeObject {
 	private float goingTime = 1.0f;
 	private float timeBeforeRotate = 0;
 	
+	@Override
+	public void ballsToTheWall() {
+		timeBeforeRotate = 0;
+	}
+	
 	public void update(float delta) {
 		if (timeBeforeRotate <= 0f) {
 			timeBeforeRotate = goingTime;
 			
-			int dir = random.nextInt(9);
-			
-			Gdx.app.debug("Enemy.update", "" + dir);
+			int dir = random.nextInt(5);
 			
 			switch (dir) {
 			case 0: this.setDirection(Direction.NONE); break;
 			case 1: this.setDirection(Direction.UP); break;
-			case 2: this.setDirection(Direction.RIGHT_UP); break;
-			case 3: this.setDirection(Direction.RIGHT); break;
-			case 4: this.setDirection(Direction.RIGHT_DOWN); break;
-			case 5: this.setDirection(Direction.DOWN); break;
-			case 6: this.setDirection(Direction.LEFT_DOWN); break;
-			case 7: this.setDirection(Direction.LEFT); break;
-			case 8: this.setDirection(Direction.LEFT_UP); break;
+	//		case 2: this.setDirection(Direction.RIGHT_UP); break;
+			case 2: this.setDirection(Direction.RIGHT); break;
+	//		case 4: this.setDirection(Direction.RIGHT_DOWN); break;
+			case 3: this.setDirection(Direction.DOWN); break;
+	//		case 6: this.setDirection(Direction.LEFT_DOWN); break;
+			case 4: this.setDirection(Direction.LEFT); break;
+	//		case 8: this.setDirection(Direction.LEFT_UP); break;
 			default:  break;
 			}
 			

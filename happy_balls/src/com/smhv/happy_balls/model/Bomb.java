@@ -3,8 +3,13 @@ package com.smhv.happy_balls.model;
 
 public class Bomb extends FixedObject {
 
+	float timeLeft;
+	
+	
 	public Bomb() {
 		super("bomb", Orientation.DEFAULT);
+		
+		timeLeft = 3;
 	}
 
 	@Override
@@ -12,5 +17,13 @@ public class Bomb extends FixedObject {
 		return false;
 	}
 	
+	public boolean update(float delta) {
+		timeLeft -= delta;
+		return timeLeft <= 0f;
+	}
+	
+	public void detonate() {
+		timeLeft = 0;
+	}
 
 }

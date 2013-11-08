@@ -1,10 +1,6 @@
 package com.smhv.happy_balls.model;
 
 public abstract class FixedObject extends WorldObject {
-
-	
-	private int x;
-	private int y;
 	
 	public enum Orientation {
 		LEFT,
@@ -27,6 +23,5 @@ public abstract class FixedObject extends WorldObject {
 	public Orientation getOrientation() {
 		return orientation;
 	}
-	
 	
 }

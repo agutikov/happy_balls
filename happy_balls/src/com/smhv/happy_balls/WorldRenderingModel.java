@@ -50,6 +50,7 @@ public class WorldRenderingModel {
 	}
 	
 	public class RenderingCell {
+		public boolean tinted = false;
 		public RenderObject bottom;
 		public RenderObject top;
 	}
@@ -88,7 +89,8 @@ public class WorldRenderingModel {
 		renderingMap[y][x].top = null;
 	}
 	
-	//TODO: перейти на использование спрайтов, в т.ч. и для кеширования повернутых картинок
+	//TODO: перейти на использование спрайтов
+	//TODO: SpriteCache
 	
 	public GameTexture enemyTexture;
 	public RenderObject protagonistTexture;
@@ -108,15 +110,22 @@ public class WorldRenderingModel {
 		protogonistPosition  = pos;
 	}
 	
+	public void tint (int x, int y, boolean t) {
+		renderingMap[y][x].tinted = t;
+	}
+	
 	// world coordinates
 	public void addEnemy (Vector2 pos) {
 		enemiesPositions.add(pos);
 	}
 	
+	public void rmEnemy (int i) {
+		enemiesPositions.remove(i);
+	}
+	
 	// world coordinates
-	public void moveEnemyTo (int enemyIndex, Vector2 pos) {
-		
-		enemiesPositions.set(enemyIndex, pos);
+	public void moveEnemyTo (int i, Vector2 pos) {
+		enemiesPositions.set(i, pos);
 	}
 	
 	public WorldRenderingModel() {				

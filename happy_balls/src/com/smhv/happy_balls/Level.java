@@ -2,6 +2,8 @@ package com.smhv.happy_balls;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
+
 import com.badlogic.gdx.utils.Array;
 import com.smhv.happy_balls.model.FixedObject;
 import com.smhv.happy_balls.model.FixedObject.Orientation;
@@ -105,25 +107,29 @@ public class Level {
 		
 
 		Array<BoxDescription> bricks = new Array<BoxDescription>();
-		bricks.add(lvl.new BoxDescription(5, 2, Orientation.DEFAULT));
-		bricks.add(lvl.new BoxDescription(10, 3, Orientation.DEFAULT));
-		bricks.add(lvl.new BoxDescription(12, 3, Orientation.DEFAULT));
+		for (int y = 2; y < h-2; y+=2)
+			for (int x = 2; x < w-2; x+=2) 
+				bricks.add(lvl.new BoxDescription(x, y, Orientation.DEFAULT));
 		
 		lvl.boxes.put("brick", bricks);
 		
+
+		Random random = new Random();
+		
 		Array<BoxDescription> boxes = new Array<BoxDescription>();
-		boxes.add(lvl.new BoxDescription(8, 2, Orientation.DEFAULT));
-		boxes.add(lvl.new BoxDescription(5, 3, Orientation.DEFAULT));
-		boxes.add(lvl.new BoxDescription(8, 8, Orientation.DEFAULT));
-		boxes.add(lvl.new BoxDescription(6, 10, Orientation.DEFAULT));
+		for (int y = 1; y < h-1; y+=1) {
+			for (int x = 1; x < w-1; x+=1) {
+				if (!(x%2 == 0 && y%2 == 0) && random.nextBoolean()) {
+					boxes.add(lvl.new BoxDescription(x, y, Orientation.DEFAULT));
+				} else if (random.nextBoolean() && random.nextBoolean()) {
+					lvl.enemies.add(lvl.new ObjectDescription(x, y));
+				}
+			}
+		}
 
 		lvl.boxes.put("box", boxes);
 		
-		for (int i = 10; i < 20; i++) {
-			lvl.enemies.add(lvl.new ObjectDescription(i, i));		
-		}
-		
-		lvl.protDesc = lvl.new ObjectDescription(4, 10);
+		lvl.protDesc = lvl.new ObjectDescription(w/2+1, h/2);
 		
 		return lvl;
 	}

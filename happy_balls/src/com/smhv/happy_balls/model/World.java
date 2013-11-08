@@ -11,6 +11,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.smhv.happy_balls.Level;
+import com.smhv.happy_balls.SoundPlayer;
 import com.smhv.happy_balls.Level.BoxDescription;
 import com.smhv.happy_balls.Level.ObjectDescription;
 import com.smhv.happy_balls.WorldRenderingModel;
@@ -19,6 +20,7 @@ import com.smhv.happy_balls.WorldRenderingModel;
 
 public class World implements WorldInput {
 	
+	SoundPlayer player;
 	private WorldRenderingModel renderingModel;
 	
 	private Protagonist protagonist;	
@@ -40,29 +42,29 @@ public class World implements WorldInput {
 	private Map <Bomb, World.Position> bombs;
 	
 	// TODO: Blow должен создаваться фабрикой членом Bomb (это логично и параметры можно передать)
-	public class Blow {
+	public class Explosion {
 
 		private int x;
 		private int y;
 		
 		private float timeLeft;
 		
-		public Blow(int x, int y) {
+		public Explosion(int x, int y) {
 			this.x = x;
 			this.y = y;
 			timeLeft = 0.3f;
 		}
 		
 		public void perform(World w) {			
-			w.map[y][x].blow();		
+			w.map[y][x].explode();		
 			if (y > 0)
-				w.map[y - 1][x].blow();
+				w.map[y - 1][x].explode();
 			if (y < w.height)
-				w.map[y + 1][x].blow();
+				w.map[y + 1][x].explode();
 			if (x > 0)
-				w.map[y][x - 1].blow();
+				w.map[y][x - 1].explode();
 			if (x < w.width)
-				w.map[y][x + 1].blow();				
+				w.map[y][x + 1].explode();				
 		}
 		
 		public void cleanup(World w) {			
@@ -87,7 +89,7 @@ public class World implements WorldInput {
 
 	}
 	
-	private ArrayList<Blow> blows;
+	private ArrayList<Explosion> blows;
 	
 	//TODO: логика - дать возможность объектам самим делать что захотят и влиять на мир
 	
@@ -140,7 +142,7 @@ public class World implements WorldInput {
 				return true;
 		}
 		
-		public void blow() {
+		public void explode() {
 			if (box != null && box.isEternal()) {
 				
 			} else {
@@ -151,6 +153,8 @@ public class World implements WorldInput {
 					bomb.detonate();
 				}
 				if (enemy != null) {
+
+					player.playMurder();
 					enemy.alive = false;
 					// а смысл?
 					rmEnemy(enemy);
@@ -169,12 +173,14 @@ public class World implements WorldInput {
 	private MapCell[][] map;
 	
 	
-	public World(WorldRenderingModel m) {
+	public World(WorldRenderingModel m, SoundPlayer sp) {
 		renderingModel = m;
 		
 		enemies = new ArrayList<Enemy>();
 		bombs = new HashMap<Bomb, Position>();
-		blows = new ArrayList<Blow>();
+		blows = new ArrayList<Explosion>();
+		
+		player = sp;
 	}
 
 	private Protagonist resetProtagonist(int x, int y) {		
@@ -205,6 +211,7 @@ public class World implements WorldInput {
 	}
 	private void addBomb(int x, int y) {
 		if (map[y][x].bomb == null) {
+			player.playSetBomb();
 			Bomb b = new Bomb();
 			map[y][x].setBomb(b);
 			bombs.put(b, new Position(x, y));
@@ -270,7 +277,7 @@ public class World implements WorldInput {
 		int x = Math.round(pos.x);
 		int y = Math.round(pos.y);		
 		
-		float passLimit = 0.3f;
+		float passLimit = 0.2f;
 		
 		if (obj.isGoingDown()) {
 			if (y > 0) {
@@ -415,6 +422,7 @@ public class World implements WorldInput {
 	private boolean putBombFlag = false;
 	
 	private void kill() {
+		player.playDeath();
 		protagonist.alive = false;
 		renderingModel.kill();
 	}
@@ -486,7 +494,10 @@ public class World implements WorldInput {
 		
 		for(Map.Entry<Bomb, Position> entry : bombs.entrySet()) {
 			if (entry.getKey().update(delta)) {
-				Blow b = new Blow(entry.getValue().x, entry.getValue().y);
+
+				player.playExplosion();
+				
+				Explosion b = new Explosion(entry.getValue().x, entry.getValue().y);
 				blows.add(b);
 				b.perform(this);
 				removedBombs.add(entry.getKey());
@@ -499,15 +510,15 @@ public class World implements WorldInput {
 	}
 	
 	private void updateBlows(float delta) {
-		ArrayList <Blow> removedBlows = new ArrayList <Blow>();
+		ArrayList <Explosion> removedBlows = new ArrayList <Explosion>();
 		
-		for (Blow b : blows) {
+		for (Explosion b : blows) {
 			if (b.update(delta)) {
 				b.cleanup(this);
 				removedBlows.add(b);
 			}			
 		}
-		for (Blow b : removedBlows) {
+		for (Explosion b : removedBlows) {
 			blows.remove(b);			
 		}
 		removedBlows.clear();

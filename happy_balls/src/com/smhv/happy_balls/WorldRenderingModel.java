@@ -142,7 +142,7 @@ public class WorldRenderingModel {
 	 */
 	
 	public void loadTextures() {
-		texture  = new Texture(Gdx.files.internal("Map_32.png"));
+		texture  = new Texture(Gdx.files.internal("graphics/Map_32.png"));
 		TextureRegion tmp[][] = TextureRegion.split(texture, texture.getWidth() / 8, texture.getHeight());
 				
 		textureRegions.put("player", new GameTexture(tmp[0][0], false));

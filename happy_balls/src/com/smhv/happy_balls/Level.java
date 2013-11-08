@@ -71,8 +71,8 @@ public class Level {
 	
 	public static Level createTestLevel() {
 
-		int w = 100;
-		int h = 100;
+		int w = 31;
+		int h = 31;
 		
 		Level lvl = new Level(w, h);
 		
@@ -119,17 +119,22 @@ public class Level {
 		Array<BoxDescription> boxes = new Array<BoxDescription>();
 		for (int y = 1; y < h-1; y+=1) {
 			for (int x = 1; x < w-1; x+=1) {
-				if (!(x%2 == 0 && y%2 == 0) && random.nextBoolean()) {
+				if (!(x%2 == 0 && y%2 == 0)) {
+				if ((Math.abs(w/2 - x) > 1 || Math.abs(h/2 - y) > 1) 
+						&& random.nextBoolean()) {
 					boxes.add(lvl.new BoxDescription(x, y, Orientation.DEFAULT));
-				} else if (random.nextBoolean() && random.nextBoolean()) {
+				} else if ((Math.abs(w/2 - x) > 3 || Math.abs(h/2 - y) > 3)
+						&& random.nextBoolean() 
+						&& random.nextBoolean()) {
 					lvl.enemies.add(lvl.new ObjectDescription(x, y));
+				}
 				}
 			}
 		}
 
 		lvl.boxes.put("box", boxes);
 		
-		lvl.protDesc = lvl.new ObjectDescription(w/2+1, h/2);
+		lvl.protDesc = lvl.new ObjectDescription(w/2, h/2);
 		
 		return lvl;
 	}

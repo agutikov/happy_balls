@@ -17,6 +17,7 @@ public class Enemy extends FreeObject {
 	public Enemy(Vector2 pos) {
 		super("enemy", pos);
 		goingTime = random.nextFloat() * 20;
+		speed = random.nextFloat() * 5f;
 	}
 	
 	private float goingTime = 1.0f;

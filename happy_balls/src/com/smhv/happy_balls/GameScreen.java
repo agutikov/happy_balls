@@ -21,17 +21,20 @@ public class GameScreen implements Screen {
 	private WorldRenderer 	renderer;
 	private InputController	input;
 	
+	private SoundPlayer soundPlayer;
+	
 	private boolean running = false;
 
 
 	/*
 	 * Initialize game engine, no real game data loaded.
 	 */	
-	public GameScreen() {
-		//TODO: создавать всё независимым и потом биндить
+	public GameScreen(SoundPlayer sp) {
+		
+		soundPlayer = sp;
 		
 		model = new WorldRenderingModel();
-		world = new World(model);
+		world = new World(model, sp);
 		renderer = new WorldRenderer(model);
 		input = new InputController(world);
 		
@@ -77,6 +80,8 @@ public class GameScreen implements Screen {
 		Gdx.app.debug("", "GameScreen.show()");
 		
 		Gdx.input.setInputProcessor(input);
+		
+		soundPlayer.startGameTrack();
 		
 		running = true;
 

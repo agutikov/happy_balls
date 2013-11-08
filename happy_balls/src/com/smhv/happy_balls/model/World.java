@@ -422,9 +422,11 @@ public class World implements WorldInput {
 	private boolean putBombFlag = false;
 	
 	private void kill() {
-		player.playDeath();
-		protagonist.alive = false;
-		renderingModel.kill();
+		if (protagonist.alive) {
+			player.playDeath();
+			protagonist.alive = false;
+			renderingModel.kill();			
+		}
 	}
 	
 	private void enemyInteraction() {		
@@ -544,7 +546,10 @@ public class World implements WorldInput {
 
 	@Override
 	public void putBomb() {
-		putBombFlag = true;
+		//TODO: move setBomb to Protagonist class
+		if (protagonist.alive) {
+			putBombFlag = true;
+		}
 	}
 
 	@Override

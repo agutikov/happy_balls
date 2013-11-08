@@ -26,6 +26,10 @@ public class World implements WorldInput {
 	private Protagonist protagonist;	
 	private ArrayList<Enemy> enemies;	
 	
+	Position respawn;
+	private float respawnTime = 3f;
+	private float respawnTimeLeft;
+	
 	public class Position {
 		public int x;
 		public int y;
@@ -102,12 +106,16 @@ public class World implements WorldInput {
 		private Box box;
 		
 		// enemy sets this pointer by itself during moving
-		public Enemy enemy;
+		public ArrayList<Enemy> enemies;
 		
 		public int x;
 		public int y;
 		
 		public boolean isBlowing = false;
+		
+		public MapCell() {
+			enemies = new ArrayList<Enemy>();
+		}
 		
 		public void setBomb (Bomb b) {
 			bomb = b;
@@ -152,14 +160,20 @@ public class World implements WorldInput {
 				if (bomb != null) {
 					bomb.detonate();
 				}
-				if (enemy != null) {
-
+				
+				ArrayList<Enemy> killedEnemies = new ArrayList<Enemy>();
+				for (Enemy e : enemies) {
 					player.playMurder();
-					enemy.alive = false;
+					e.alive = false;
 					// а смысл?
-					rmEnemy(enemy);
-					enemy = null;
+					rmEnemy(e);
+					killedEnemies.add(e);
 				}
+				for (Enemy e : killedEnemies) {
+					enemies.remove(e);
+				}
+				killedEnemies.clear();
+				
 				renderingModel.tint(x, y, true);
 				isBlowing = true;
 			}
@@ -186,6 +200,7 @@ public class World implements WorldInput {
 	private Protagonist resetProtagonist(int x, int y) {		
 		protagonist = new Protagonist(new Vector2(x, y));
 		renderingModel.moveProtagonistTo(new Vector2(x, y));
+		renderingModel.resurrection();
 		return protagonist;
 	}		
 	private Enemy addEnemy(int x, int y) {
@@ -250,6 +265,7 @@ public class World implements WorldInput {
 			for (ObjectDescription desc : lvl.enemies) {
 				addEnemy(desc.x, desc.y);
 			}
+			respawn = new Position(lvl.protDesc.x, lvl.protDesc.y);
 			resetProtagonist(lvl.protDesc.x, lvl.protDesc.y);
 	}
 	
@@ -277,7 +293,7 @@ public class World implements WorldInput {
 		int x = Math.round(pos.x);
 		int y = Math.round(pos.y);		
 		
-		float passLimit = 0.2f;
+		float passLimit = 0.25f;
 		
 		if (obj.isGoingDown()) {
 			if (y > 0) {
@@ -424,8 +440,9 @@ public class World implements WorldInput {
 	private void kill() {
 		if (protagonist.alive) {
 			player.playDeath();
-			protagonist.alive = false;
-			renderingModel.kill();			
+			protagonist.kill();
+			renderingModel.kill();	
+			respawnTimeLeft = respawnTime;
 		}
 	}
 	
@@ -433,7 +450,7 @@ public class World implements WorldInput {
 		int x = Math.round(protagonist.getPos().x);
 		int y = Math.round(protagonist.getPos().y);	
 		
-		if (map[y][x].enemy != null) {
+		if (map[y][x].enemies.size() > 0) {
 			kill();
 		}
 	}
@@ -444,18 +461,19 @@ public class World implements WorldInput {
 			int x = Math.round(e.getPos().x);
 			int y = Math.round(e.getPos().y);	
 			
-			map[y][x].enemy = null;
+			map[y][x].enemies.remove(e);
 			
 			e.update(delta);
 			//TODO: NPC должен получать сигналы когда врезается куда-нибудь
 			posCorrection(e);
 			renderingModel.moveEnemyTo(i, e.getPos());
+			renderingModel.setEnemyDirection(i, e.getDirection());
 			i++;
 
 			x = Math.round(e.getPos().x);
 			y = Math.round(e.getPos().y);	
 			
-			map[y][x].enemy = e;
+			map[y][x].enemies.add(e);
 		}
 	}
 	
@@ -471,6 +489,7 @@ public class World implements WorldInput {
 			}
 		}		
 		renderingModel.moveProtagonistTo(protagonist.getPos());
+		renderingModel.setProtagonistDirection(protagonist.getDirection());
 
 		moveEnemies(delta);
 		enemyInteraction();
@@ -478,6 +497,17 @@ public class World implements WorldInput {
 		processBombing();
 		updateBombs(delta);
 		updateBlows(delta);
+		
+		renderingModel.update(delta);
+		
+		if (!protagonist.isAlive()) {
+			if (respawnTimeLeft > 0) {
+				respawnTimeLeft -= delta;
+			} else {
+				protagonist.resurrection();
+				resetProtagonist(respawn.x, respawn.y);
+			}
+		}
 	}
 	
 	private void processBombing() {

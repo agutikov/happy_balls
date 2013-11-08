@@ -19,8 +19,15 @@ public abstract class FreeObject extends WorldObject {
 	
 	public abstract void ballsToTheWall();
 
-	public boolean alive = true;
+	protected boolean alive = true;
 	
+	public void kill() {
+		alive = false;
+	}
+	
+	public boolean isAlive() {
+		return alive;
+	}
 	
 	protected Vector2 	position = new Vector2();
 	
@@ -49,6 +56,9 @@ public abstract class FreeObject extends WorldObject {
 		return velocity.x > 0;
 	}
 
+	public Direction getDirection() {
+		return currDirection;
+	}
 	
 	public void setDirection(Direction d) {
 		if (d != currDirection) {

@@ -40,6 +40,17 @@ public class SoundPlayer {
 		
 	}
 	
+	public void pause() {
+		for (Entry<String, Sound> entry : sounds.entrySet()) {
+			entry.getValue().pause();
+		}
+	}
+	public void resume() {
+		for (Entry<String, Sound> entry : sounds.entrySet()) {
+			entry.getValue().resume();
+		}
+	}
+	
 	
 	public void startGameTrack() {
 		sounds.get("menu").loop();	
@@ -81,6 +92,7 @@ public class SoundPlayer {
 	public void playGameOver() {
 
 	}
+
 	
 	public void playGameWin() {
 

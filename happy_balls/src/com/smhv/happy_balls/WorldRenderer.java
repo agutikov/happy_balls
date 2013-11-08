@@ -173,15 +173,14 @@ public class WorldRenderer {
 	}
 
 	private void renderProtagonist() {
-		drawRotated(world.protagonistTexture.texture.textureRegion, 
-				world.protogonistPosition.x, 
-				world.protogonistPosition.y,
-				world.protagonistTexture.rot);		
+		draw(world.protagonistRenderObject.currentFrame(), 
+				world.protagonistRenderObject.getPos().x, 
+				world.protagonistRenderObject.getPos().y);		
 	}
 
 	private void renderEnemies() {
-		for (Vector2 pos : world.enemiesPositions) {
-			draw(world.enemyTexture.textureRegion, pos.x, pos.y);
+		for (RenderFreeObject enemy : world.enemies) {
+			draw(enemy.currentFrame(), enemy.getPos().x, enemy.getPos().y);
 		}
 		
 	}

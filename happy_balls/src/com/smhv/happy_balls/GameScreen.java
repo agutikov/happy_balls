@@ -100,7 +100,7 @@ public class GameScreen implements Screen {
 	public void pause() {
 		Gdx.app.debug("", "GameScreen.pause()");
 
-		
+		soundPlayer.pause();
 		
 
 		running = false;
@@ -111,6 +111,8 @@ public class GameScreen implements Screen {
 		Gdx.app.debug("", "GameScreen.resume()");
 
 
+		soundPlayer.resume();
+		
 		running = true;
 	}
 

@@ -6,9 +6,13 @@ import java.util.Map;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
+import com.smhv.happy_balls.RenderFreeObject.FreeObjectState;
 import com.smhv.happy_balls.model.FixedObject;
+import com.smhv.happy_balls.model.FreeObject.Direction;
+
 
 public class WorldRenderingModel {
 
@@ -49,6 +53,9 @@ public class WorldRenderingModel {
 		}
 	}
 	
+
+	
+	
 	public class RenderingCell {
 		public boolean tinted = false;
 		public RenderObject bottom;
@@ -69,20 +76,16 @@ public class WorldRenderingModel {
 		}
 		
 		textureMap = objTextureMap;
-		
-		enemyTexture = textureRegions.get("enemy");
-		
-		protagonistTexture = new RenderObject(textureRegions.get("player"), 0);
 	}
 	
 	public void setFixedTop(String objName, int x, int y, FixedObject.Orientation orient) {
 		renderingMap[y][x].top = new RenderObject(
-				textureRegions.get(textureMap.get(objName)),
+				textureGlobalRegions.get(textureMap.get(objName)),
 				or2deg(orient));
 	}
 	public void setFixedBottom(String objName, int x, int y, FixedObject.Orientation orient) {
 		renderingMap[y][x].bottom = new RenderObject(
-				textureRegions.get(textureMap.get(objName)),
+				textureGlobalRegions.get(textureMap.get(objName)),
 				or2deg(orient));
 	}
 	public void rmFixedTop(int x, int y) {
@@ -91,15 +94,41 @@ public class WorldRenderingModel {
 	
 	//TODO: перейти на использование спрайтов
 	//TODO: SpriteCache
+
+	public FreeObjectTextureMap protagonistTextureMap;
+	public FreeObjectTextureMap enemyTextureMap;
 	
-	public GameTexture enemyTexture;
-	public RenderObject protagonistTexture;
 	
-	public Vector2 protogonistPosition;
-	public ArrayList<Vector2> enemiesPositions;
+	public RenderFreeObject protagonistRenderObject;		
+	public ArrayList<RenderFreeObject> enemies;
 	
 	public void kill() {
-		protagonistTexture.rot = 90;
+		protagonistRenderObject.kill();
+	}
+	
+	
+	public void resurrection() {
+		protagonistRenderObject.resurrection();
+	}
+	
+	//TODO: может объединить все эти енумы-направления?
+	public void setProtagonistDirection (Direction dir) {
+		switch (dir) {
+		case NONE: 		protagonistRenderObject.setState(FreeObjectState.STAND); 		break;
+		case LEFT: 		protagonistRenderObject.setState(FreeObjectState.WALK_LEFT); 	break;
+		case RIGHT: 	protagonistRenderObject.setState(FreeObjectState.WALK_RIGHT); 	break;
+		case UP: 		protagonistRenderObject.setState(FreeObjectState.WALK_UP); 		break;
+		case DOWN: 		protagonistRenderObject.setState(FreeObjectState.WALK_DOWN); 	break;
+		default:
+			break;
+		}
+	}
+	
+	public void update (float delta) {
+		protagonistRenderObject.update(delta);
+		for (RenderFreeObject enemy : enemies) {
+			enemy.update(delta);
+		}
 	}
 	
 	// world coordinates
@@ -107,7 +136,7 @@ public class WorldRenderingModel {
 		
 		renderer.SetCamera(pos.x, pos.y);
 
-		protogonistPosition  = pos;
+		protagonistRenderObject.setPos(pos);
 	}
 	
 	public void tint (int x, int y, boolean t) {
@@ -116,24 +145,37 @@ public class WorldRenderingModel {
 	
 	// world coordinates
 	public void addEnemy (Vector2 pos) {
-		enemiesPositions.add(pos);
+		enemies.add(new RenderFreeObject(enemyTextureMap));
 	}
 	
 	public void rmEnemy (int i) {
-		enemiesPositions.remove(i);
+		enemies.remove(i);
 	}
 	
 	// world coordinates
 	public void moveEnemyTo (int i, Vector2 pos) {
-		enemiesPositions.set(i, pos);
+		enemies.get(i).setPos(pos);
+	}
+	
+	public void setEnemyDirection (int i, Direction dir) {
+		switch (dir) {
+		case NONE: 		enemies.get(i).setState(FreeObjectState.STAND); 		break;
+		case LEFT: 		enemies.get(i).setState(FreeObjectState.WALK_LEFT); 	break;
+		case RIGHT: 	enemies.get(i).setState(FreeObjectState.WALK_RIGHT); 	break;
+		case UP: 		enemies.get(i).setState(FreeObjectState.WALK_UP); 		break;
+		case DOWN: 		enemies.get(i).setState(FreeObjectState.WALK_DOWN); 	break;
+		default:
+			break;
+		}
 	}
 	
 	public WorldRenderingModel() {				
-		enemiesPositions = new ArrayList<Vector2>();
+		enemies = new ArrayList<RenderFreeObject>();
 	}
 	
-	Texture texture;
-	public  Map<String, GameTexture> textureRegions = new HashMap<String, GameTexture>();
+	
+	Texture textureGlobal;
+	public  Map<String, GameTexture> textureGlobalRegions = new HashMap<String, GameTexture>();
 
 	
 	/*
@@ -142,16 +184,24 @@ public class WorldRenderingModel {
 	 */
 	
 	public void loadTextures() {
-		texture  = new Texture(Gdx.files.internal("graphics/Map_32.png"));
-		TextureRegion tmp[][] = TextureRegion.split(texture, texture.getWidth() / 8, texture.getHeight());
+		textureGlobal  = new Texture(Gdx.files.internal("graphics/Map_32.png"));
+		TextureRegion tmp[][] = TextureRegion.split(textureGlobal, textureGlobal.getWidth() / 8, textureGlobal.getHeight());
 				
-		textureRegions.put("player", new GameTexture(tmp[0][0], false));
-		textureRegions.put("enemy", new GameTexture(tmp[0][1], false));
-		textureRegions.put("bomb", new GameTexture(tmp[0][2], false));
-		textureRegions.put("box", new GameTexture(tmp[0][3], true));
-		textureRegions.put("floor", new GameTexture(tmp[0][4], true));
-		textureRegions.put("brick", new GameTexture(tmp[0][5], true));
-		textureRegions.put("wall", new GameTexture(tmp[0][6], true));
-		textureRegions.put("corner", new GameTexture(tmp[0][7], true));
+		textureGlobalRegions.put("player", new GameTexture(tmp[0][0], false));
+		textureGlobalRegions.put("enemy", new GameTexture(tmp[0][1], false));
+		textureGlobalRegions.put("bomb", new GameTexture(tmp[0][2], false));
+		textureGlobalRegions.put("box", new GameTexture(tmp[0][3], true));
+		textureGlobalRegions.put("floor", new GameTexture(tmp[0][4], true));
+		textureGlobalRegions.put("brick", new GameTexture(tmp[0][5], true));
+		textureGlobalRegions.put("wall", new GameTexture(tmp[0][6], true));
+		textureGlobalRegions.put("corner", new GameTexture(tmp[0][7], true));
+		
+
+		protagonistTextureMap = new FreeObjectTextureMap("graphics/player_sprite.png");
+		protagonistRenderObject = new RenderFreeObject(protagonistTextureMap);
+	
+		enemyTextureMap = new FreeObjectTextureMap("graphics/Enemy_sprite.png");
+		
+		
 	}
 }

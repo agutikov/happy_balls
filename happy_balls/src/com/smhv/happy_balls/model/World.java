@@ -49,6 +49,8 @@ public class World implements WorldInput {
 	// TODO: Blow должен создаваться фабрикой членом Bomb (это логично и параметры можно передать)
 	public class Explosion {
 
+		public ArrayList<Enemy> killedEnemies;
+		
 		private int x;
 		private int y;
 		
@@ -58,18 +60,21 @@ public class World implements WorldInput {
 			this.x = x;
 			this.y = y;
 			timeLeft = 0.3f;
+			
+			killedEnemies = new ArrayList<Enemy>();
 		}
 		
+		//TODO: разные модели взрыва - ограничение по расстоянию или по площади, направление распространения (за угол)
 		public void perform(World w) {			
-			w.map[y][x].explode();		
+			w.map[y][x].explode(this);		
 			if (y > 0)
-				w.map[y - 1][x].explode();
+				w.map[y - 1][x].explode(this);
 			if (y < w.height)
-				w.map[y + 1][x].explode();
+				w.map[y + 1][x].explode(this);
 			if (x > 0)
-				w.map[y][x - 1].explode();
+				w.map[y][x - 1].explode(this);
 			if (x < w.width)
-				w.map[y][x + 1].explode();				
+				w.map[y][x + 1].explode(this);				
 		}
 		
 		public void cleanup(World w) {			
@@ -94,7 +99,7 @@ public class World implements WorldInput {
 
 	}
 	
-	private ArrayList<Explosion> blows;
+	private ArrayList<Explosion> explosions;
 	
 	//TODO: логика - дать возможность объектам самим делать что захотят и влиять на мир
 	
@@ -112,7 +117,7 @@ public class World implements WorldInput {
 		public int x;
 		public int y;
 		
-		public boolean isBlowing = false;
+		public boolean isExploading = false;
 		
 		public MapCell() {
 			enemies = new ArrayList<Enemy>();
@@ -151,7 +156,7 @@ public class World implements WorldInput {
 				return true;
 		}
 		
-		public void explode() {
+		public void explode(Explosion explosion) {
 			if (box != null && box.isEternal()) {
 				
 			} else {
@@ -162,27 +167,22 @@ public class World implements WorldInput {
 					bomb.detonate();
 				}
 				
-				ArrayList<Enemy> killedEnemies = new ArrayList<Enemy>();
 				for (Enemy e : enemies) {
 					player.playMurder();
-					e.alive = false;
-					// а смысл?
-					rmEnemy(e);
-					killedEnemies.add(e);
+					e.kill();				
+					int index = enemies.indexOf(e);	
+					renderingModel.killEnemy(index);					
+					explosion.killedEnemies.add(e);
 				}
-				for (Enemy e : killedEnemies) {
-					enemies.remove(e);
-				}
-				killedEnemies.clear();
 				
 				renderingModel.setExplosion(x, y, ExplosionPart.CENTER);
-				isBlowing = true;
+				isExploading = true;
 			}
 		}
 		
 		public void unexplode() {
 			renderingModel.rmExplosion(x, y);	
-			isBlowing = false;		
+			isExploading = false;		
 		}
 	}
 	private MapCell[][] map;
@@ -193,7 +193,7 @@ public class World implements WorldInput {
 		
 		enemies = new ArrayList<Enemy>();
 		bombs = new HashMap<Bomb, Position>();
-		blows = new ArrayList<Explosion>();
+		explosions = new ArrayList<Explosion>();
 		
 		player = sp;
 	}
@@ -454,8 +454,11 @@ public class World implements WorldInput {
 		int x = Math.round(protagonist.getPos().x);
 		int y = Math.round(protagonist.getPos().y);	
 		
-		if (map[y][x].enemies.size() > 0) {
-			kill();
+		for (Enemy e : map[y][x].enemies) {
+			if (e.isAlive()) {
+				kill();
+				break;
+			}
 		}
 	}
 	
@@ -488,7 +491,7 @@ public class World implements WorldInput {
 			int x = Math.round(protagonist.getPos().x);
 			int y = Math.round(protagonist.getPos().y);	
 			
-			if (map[y][x].isBlowing) {
+			if (map[y][x].isExploading) {
 				kill();
 			}
 		}		
@@ -534,7 +537,7 @@ public class World implements WorldInput {
 				player.playExplosion();
 				
 				Explosion b = new Explosion(entry.getValue().x, entry.getValue().y);
-				blows.add(b);
+				explosions.add(b);
 				b.perform(this);
 				removedBombs.add(entry.getKey());
 			}
@@ -544,20 +547,24 @@ public class World implements WorldInput {
 		}
 		removedBombs.clear();
 	}
-	//TODO: разные модели взрыва - ограничение по расстоянию или по площади, направление распространения (за угол)
+	
 	private void updateExplosions(float delta) {
-		ArrayList <Explosion> removedBlows = new ArrayList <Explosion>();
+		ArrayList <Explosion> removedExplosions = new ArrayList <Explosion>();
 		
-		for (Explosion b : blows) {
+		for (Explosion b : explosions) {
 			if (b.update(delta)) {
+				for (Enemy e : b.killedEnemies) {
+					rmEnemy(e);
+				}
+				b.killedEnemies.clear();
 				b.cleanup(this);
-				removedBlows.add(b);
+				removedExplosions.add(b);
 			}			
 		}
-		for (Explosion b : removedBlows) {
-			blows.remove(b);			
+		for (Explosion b : removedExplosions) {
+			explosions.remove(b);			
 		}
-		removedBlows.clear();
+		removedExplosions.clear();
 	}
 	
 	@Override

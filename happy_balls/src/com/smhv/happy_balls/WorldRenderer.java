@@ -59,7 +59,7 @@ public class WorldRenderer {
 		viewport = new Rectangle(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
 		
 		
-		font = new BitmapFont(Gdx.files.local("fonts/exocet.fnt"));
+		font = new BitmapFont(Gdx.files.local("fonts/font_exocet.fnt"));
 		font.setColor(0.0f, 1.0f, 0.0f, 1.0f);
 	}
 	
@@ -168,6 +168,7 @@ public class WorldRenderer {
 		renderMap();	
 		renderEnemies();
 		renderProtagonist();
+		renderExplosions();
 		renderFPS();
 		spriteBatch.end();			 
 	}
@@ -193,6 +194,10 @@ public class WorldRenderer {
 				rot);
 	}
 
+	private void renderExplosions() {
+		
+	}
+	
 	private void renderProtagonist() {
 		draw(world.protagonistRenderObject.currentFrame(), 
 				world.protagonistRenderObject.getPos().x, 
@@ -209,8 +214,6 @@ public class WorldRenderer {
 	//TODO: cache rotated texture regions 
 	
 	private void renderCell(RenderingCell cell, int x, int y) {
-		if (cell.tinted)
-			spriteBatch.setColor(Color.RED);
 		
 		if (cell.top == null || !cell.top.texture.isFullHover) {
 			if (cell.bottom != null) {
@@ -220,9 +223,6 @@ public class WorldRenderer {
 		if (cell.top != null) {
 			drawRotated(cell.top.texture.textureRegion, x, y, cell.top.rot);
 		}
-		
-		if (cell.tinted)
-			spriteBatch.setColor(Color.WHITE);
 	}
 	
 	private void renderMap() {

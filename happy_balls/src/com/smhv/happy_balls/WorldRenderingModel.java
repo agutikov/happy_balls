@@ -57,7 +57,9 @@ public class WorldRenderingModel {
 	
 	
 	public class RenderingCell {
-		public boolean tinted = false;
+		boolean explosion;
+		ExplosionPart part;
+		
 		public RenderObject bottom;
 		public RenderObject top;
 	}
@@ -169,6 +171,10 @@ public class WorldRenderingModel {
 	// world coordinates
 	public void moveEnemyTo (int i, Vector2 pos) {
 		enemies.get(i).setPos(pos);
+	}
+	
+	public void killEnemy(int i) {
+		enemies.get(i).setState(FreeObjectState.DEAD);
 	}
 	
 	public void setEnemyDirection (int i, Direction dir) {

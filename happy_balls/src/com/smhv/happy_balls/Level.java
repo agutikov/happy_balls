@@ -71,8 +71,8 @@ public class Level {
 	
 	public static Level createTestLevel() {
 
-		int w = 111;
-		int h = 111;
+		int w = 11;
+		int h = 11;
 		
 		Level lvl = new Level(w, h);
 		

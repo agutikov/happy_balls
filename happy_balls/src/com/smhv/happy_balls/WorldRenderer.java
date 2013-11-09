@@ -13,16 +13,23 @@ import com.badlogic.gdx.graphics.FPSLogger;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.TimeUtils;
 import com.smhv.happy_balls.WorldRenderingModel.RenderingCell;
 
 public class WorldRenderer {
 
 	public FPSLogger fpsLogger = new FPSLogger();
+	
+	BitmapFont font;
+	float fps = 0;
+	float fpsCount = 0;
+	long lastTime;
 	
 	private WorldRenderingModel world;
 	// TODO: рендерить только то что visible
@@ -41,15 +48,19 @@ public class WorldRenderer {
 	private float ppuX = 32;	// пикселей на ячейку мира по X 
 	private float ppuY = 32;	// пикселей на ячейку мира по Y 
 	
-    private static final float CAMERA_WIDTH  = 8f;
-    private static final float CAMERA_HEIGHT = 8f;
+    private static final float CAMERA_WIDTH  = 512f;
+    private static final float CAMERA_HEIGHT = 512f;
     
 	public WorldRenderer(WorldRenderingModel model) {
 		this.world = model;		
 		spriteBatch = new SpriteBatch();		
 		camera = new OrthographicCamera(CAMERA_WIDTH, CAMERA_HEIGHT);
 		renderer = new ShapeRenderer();
-		viewport = new Rectangle(0, 0, CAMERA_WIDTH * ppuX, CAMERA_HEIGHT * ppuY);
+		viewport = new Rectangle(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
+		
+		
+		font = new BitmapFont(Gdx.files.local("fonts/exocet.fnt"));
+		font.setColor(0.0f, 1.0f, 0.0f, 1.0f);
 	}
 	
 	public enum ScaleMode {
@@ -75,7 +86,7 @@ public class WorldRenderer {
 		float aspectRatio;
 		switch (scaleMode) {
 		case NON_SCALE_FREE_VIEWPORT:
-			camera = new OrthographicCamera(w/ppuX, h/ppuY);
+			camera = new OrthographicCamera(w, h);
 			viewport.width = w;
 			viewport.height = h;
 			break;
@@ -126,7 +137,7 @@ public class WorldRenderer {
 	}	
 	
 	public void SetCamera(float x, float y){
-		camera.position.set(x+0.5f, y+0.5f, 0);
+		camera.position.set((x+0.5f)*ppuX, (y+0.5f)*ppuY, 0);
 		camera.update();
 	}	
 	
@@ -143,6 +154,16 @@ public class WorldRenderer {
 		// а не своей собственной по умолчанию
 		spriteBatch.setProjectionMatrix(camera.combined);
 	
+		long curr = TimeUtils.millis();
+		if (curr - lastTime > 1000) {			
+			fps = fpsCount / ((float)(curr - lastTime)/1000);
+			fpsCount = 0;
+			lastTime = curr;			
+			fpsLogger.log();
+		}
+		fpsCount++;
+		
+		
 		spriteBatch.begin();		
 		renderMap();	
 		renderEnemies();
@@ -154,20 +175,20 @@ public class WorldRenderer {
 	//TODO: использовать размеры объектов?
 	private void draw(TextureRegion tr, float x, float y) {
 		spriteBatch.draw(tr, 
-				(x), 
-				(y), 
+				(x)*ppuX, 
+				(y)*ppuY, 
 				0, 0, 
-				1, 1, 
+				1*ppuX, 1*ppuY, 
 				1, 1, 
 				0);
 	}
 
 	private void drawRotated(TextureRegion tr, float x, float y, float rot) {
 		spriteBatch.draw(tr, 
-				(x), 
-				(y), 
-				0.5f, 0.5f, 
-				1, 1, 
+				(x)*ppuX, 
+				(y)*ppuY, 
+				0.5f*ppuY, 0.5f*ppuX, 
+				1*ppuX, 1*ppuY, 
 				1, 1, 
 				rot);
 	}
@@ -215,7 +236,9 @@ public class WorldRenderer {
 	}
 	
 	private void renderFPS() {
-		
+		font.draw(spriteBatch, String.format("%3.1f", fps), 
+				camera.position.x - viewport.width/2 + 16, 
+				camera.position.y - viewport.height/2 + 48);
 	}
 	
 }

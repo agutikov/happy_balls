@@ -9,6 +9,7 @@ import com.badlogic.gdx.audio.Sound;
 
 public class SoundPlayer {
 
+	float volume = 0.1f;
 	
 	private static Map <String, String> soundFilenames = new HashMap <String, String>();
 	
@@ -28,6 +29,7 @@ public class SoundPlayer {
 	
 	public SoundPlayer() {
 		sounds = new HashMap<String, Sound>();
+
 	}
 	
 	
@@ -53,7 +55,7 @@ public class SoundPlayer {
 	
 	
 	public void startGameTrack() {
-		sounds.get("menu").loop();	
+		sounds.get("menu").loop(volume);	
 	}
 	public void stopGameTrack() {
 		sounds.get("menu").stop();	
@@ -66,7 +68,7 @@ public class SoundPlayer {
 	
 	public void playExplosion() {
 
-		sounds.get("explosion").play();	
+		sounds.get("explosion").play(volume);	
 	}
 	
 	public void playSetBomb() {
@@ -75,17 +77,17 @@ public class SoundPlayer {
 	
 	public void playMurder() {
 
-		sounds.get("murder").play();	
+		sounds.get("murder").play(volume);	
 	}
 	
 	public void playSpawn() {
 
-		sounds.get("spawn").play();
+		sounds.get("spawn").play(volume);
 	}
 	
 	public void playDeath() {
 
-		sounds.get("death").play();
+		sounds.get("death").play(volume);
 		
 	}
 	
@@ -96,7 +98,7 @@ public class SoundPlayer {
 	
 	public void playGameWin() {
 
-		sounds.get("win").play();
+		sounds.get("win").play(volume);
 	}
 	
 

@@ -15,6 +15,7 @@ import com.smhv.happy_balls.SoundPlayer;
 import com.smhv.happy_balls.Level.BoxDescription;
 import com.smhv.happy_balls.Level.ObjectDescription;
 import com.smhv.happy_balls.WorldRenderingModel;
+import com.smhv.happy_balls.WorldRenderingModel.ExplosionPart;
 
 //TODO: пользоваться полиморфизмом - чтобы пихать объекты в списки
 
@@ -72,15 +73,15 @@ public class World implements WorldInput {
 		}
 		
 		public void cleanup(World w) {			
-			w.map[y][x].unblow();		
+			w.map[y][x].unexplode();		
 			if (y > 0)
-				w.map[y - 1][x].unblow();
+				w.map[y - 1][x].unexplode();
 			if (y < w.height)
-				w.map[y + 1][x].unblow();
+				w.map[y + 1][x].unexplode();
 			if (x > 0)
-				w.map[y][x - 1].unblow();
+				w.map[y][x - 1].unexplode();
 			if (x < w.width)
-				w.map[y][x + 1].unblow();	
+				w.map[y][x + 1].unexplode();	
 		}
 		
 		//TODO: общий тип временных объектов
@@ -174,13 +175,13 @@ public class World implements WorldInput {
 				}
 				killedEnemies.clear();
 				
-				renderingModel.tint(x, y, true);
+				renderingModel.setExplosion(x, y, ExplosionPart.CENTER);
 				isBlowing = true;
 			}
 		}
 		
-		public void unblow() {
-			renderingModel.tint(x, y, false);	
+		public void unexplode() {
+			renderingModel.rmExplosion(x, y);	
 			isBlowing = false;		
 		}
 	}
@@ -226,6 +227,9 @@ public class World implements WorldInput {
 	}
 	private void addBomb(int x, int y) {
 		if (map[y][x].bomb == null) {
+			
+			Gdx.app.debug("bomb", x + ", " + y);
+			
 			player.playSetBomb();
 			Bomb b = new Bomb();
 			map[y][x].setBomb(b);
@@ -496,7 +500,7 @@ public class World implements WorldInput {
 		
 		processBombing();
 		updateBombs(delta);
-		updateBlows(delta);
+		updateExplosions(delta);
 		
 		renderingModel.update(delta);
 		
@@ -540,8 +544,8 @@ public class World implements WorldInput {
 		}
 		removedBombs.clear();
 	}
-	
-	private void updateBlows(float delta) {
+	//TODO: разные модели взрыва - ограничение по расстоянию или по площади, направление распространения (за угол)
+	private void updateExplosions(float delta) {
 		ArrayList <Explosion> removedBlows = new ArrayList <Explosion>();
 		
 		for (Explosion b : blows) {

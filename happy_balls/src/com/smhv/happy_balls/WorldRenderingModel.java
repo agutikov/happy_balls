@@ -139,8 +139,22 @@ public class WorldRenderingModel {
 		protagonistRenderObject.setPos(pos);
 	}
 	
-	public void tint (int x, int y, boolean t) {
-		renderingMap[y][x].tinted = t;
+	public enum ExplosionPart {
+		CENTER,
+		PASS_H,
+		PASS_V,
+		END_L,
+		END_R,
+		END_U,
+		END_D
+	}
+	
+	public void setExplosion (int x, int y, ExplosionPart part) {
+		
+	}
+	
+	public void rmExplosion (int x, int y) {
+		
 	}
 	
 	// world coordinates
@@ -200,7 +214,7 @@ public class WorldRenderingModel {
 		protagonistTextureMap = new FreeObjectTextureMap("graphics/player_sprite.png");
 		protagonistRenderObject = new RenderFreeObject(protagonistTextureMap);
 	
-		enemyTextureMap = new FreeObjectTextureMap("graphics/Enemy_sprite.png");
+		enemyTextureMap = new FreeObjectTextureMap("graphics/enemy_sprite.png");
 		
 		
 	}

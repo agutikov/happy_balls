@@ -3,6 +3,7 @@ package com.smhv.happy_balls;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
@@ -102,7 +103,7 @@ public class WorldRenderingModel {
 	
 	
 	public RenderFreeObject protagonistRenderObject;		
-	public ArrayList<RenderFreeObject> enemies;
+	public Map<Integer, RenderFreeObject> enemies;
 	
 	public void kill() {
 		protagonistRenderObject.kill();
@@ -128,8 +129,8 @@ public class WorldRenderingModel {
 	
 	public void update (float delta) {
 		protagonistRenderObject.update(delta);
-		for (RenderFreeObject enemy : enemies) {
-			enemy.update(delta);
+		for (Entry<Integer, RenderFreeObject> entry : enemies.entrySet()) {
+			entry.getValue().update(delta);
 		}
 	}
 	
@@ -160,8 +161,8 @@ public class WorldRenderingModel {
 	}
 	
 	// world coordinates
-	public void addEnemy (Vector2 pos) {
-		enemies.add(new RenderFreeObject(enemyTextureMap));
+	public void addEnemy (int index, Vector2 pos) {
+		enemies.put(index, new RenderFreeObject(enemyTextureMap));
 	}
 	
 	public void rmEnemy (int i) {
@@ -190,7 +191,7 @@ public class WorldRenderingModel {
 	}
 	
 	public WorldRenderingModel() {				
-		enemies = new ArrayList<RenderFreeObject>();
+		enemies = new HashMap<Integer, RenderFreeObject>();
 	}
 	
 	

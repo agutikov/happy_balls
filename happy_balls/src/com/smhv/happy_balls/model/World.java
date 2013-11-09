@@ -21,11 +21,13 @@ import com.smhv.happy_balls.WorldRenderingModel.ExplosionPart;
 
 public class World implements WorldInput {
 	
-	SoundPlayer player;
+	SoundPlayer soundPlayer;
 	private WorldRenderingModel renderingModel;
 	
 	private Protagonist protagonist;	
-	private ArrayList<Enemy> enemies;	
+	
+	int enemyCounter = 0;
+	private Map<Enemy, Integer> allEnemies;	
 	
 	Position respawn;
 	private float respawnTime = 3f;
@@ -112,7 +114,16 @@ public class World implements WorldInput {
 		private Box box;
 		
 		// enemy sets this pointer by itself during moving
-		public ArrayList<Enemy> enemies;
+		private ArrayList<Enemy> enemiesInThisCell;
+		
+		public boolean isKilling() {
+			for (Enemy e : enemiesInThisCell) {
+				if (e.isAlive()) {
+					return true;
+				}
+			}
+			return false;
+		}
 		
 		public int x;
 		public int y;
@@ -120,7 +131,15 @@ public class World implements WorldInput {
 		public boolean isExploading = false;
 		
 		public MapCell() {
-			enemies = new ArrayList<Enemy>();
+			enemiesInThisCell = new ArrayList<Enemy>();
+		}
+		
+		public void enemyEnter (Enemy e) {
+			enemiesInThisCell.add(e);
+		}
+		
+		public void enemyOut (Enemy e) {
+			enemiesInThisCell.remove(e);
 		}
 		
 		public void setBomb (Bomb b) {
@@ -167,13 +186,14 @@ public class World implements WorldInput {
 					bomb.detonate();
 				}
 				
-				for (Enemy e : enemies) {
-					player.playMurder();
+				for (Enemy e : enemiesInThisCell) {
+					soundPlayer.playMurder();
 					e.kill();				
-					int index = enemies.indexOf(e);	
+					int index = allEnemies.get(e);	
 					renderingModel.killEnemy(index);					
 					explosion.killedEnemies.add(e);
 				}
+				enemiesInThisCell.clear();
 				
 				renderingModel.setExplosion(x, y, ExplosionPart.CENTER);
 				isExploading = true;
@@ -191,11 +211,11 @@ public class World implements WorldInput {
 	public World(WorldRenderingModel m, SoundPlayer sp) {
 		renderingModel = m;
 		
-		enemies = new ArrayList<Enemy>();
+		allEnemies = new HashMap<Enemy, Integer>();
 		bombs = new HashMap<Bomb, Position>();
 		explosions = new ArrayList<Explosion>();
 		
-		player = sp;
+		soundPlayer = sp;
 	}
 
 	private Protagonist resetProtagonist(int x, int y) {		
@@ -205,14 +225,15 @@ public class World implements WorldInput {
 		return protagonist;
 	}		
 	private Enemy addEnemy(int x, int y) {
-		Enemy e = new Enemy(new Vector2(x, y));				
-		enemies.add(e);		
-		renderingModel.addEnemy(new Vector2(x, y));
+		Enemy e = new Enemy(new Vector2(x, y));		
+		enemyCounter++;
+		allEnemies.put(e, enemyCounter);		
+		renderingModel.addEnemy(enemyCounter, new Vector2(x, y));
 		return e;
 	}		
 	private void rmEnemy(Enemy e) {		
-		int index = enemies.indexOf(e);
-		enemies.remove(e);
+		int index = allEnemies.get(e);
+		allEnemies.remove(e);
 		renderingModel.rmEnemy(index);
 	}	
 	private Box addBox(String name, int x, int y, FixedObject.Orientation orientation) {
@@ -230,7 +251,7 @@ public class World implements WorldInput {
 			
 			Gdx.app.debug("bomb", x + ", " + y);
 			
-			player.playSetBomb();
+			soundPlayer.playSetBomb();
 			Bomb b = new Bomb();
 			map[y][x].setBomb(b);
 			bombs.put(b, new Position(x, y));
@@ -443,7 +464,7 @@ public class World implements WorldInput {
 	
 	private void kill() {
 		if (protagonist.alive) {
-			player.playDeath();
+			soundPlayer.playDeath();
 			protagonist.kill();
 			renderingModel.kill();	
 			respawnTimeLeft = respawnTime;
@@ -454,33 +475,32 @@ public class World implements WorldInput {
 		int x = Math.round(protagonist.getPos().x);
 		int y = Math.round(protagonist.getPos().y);	
 		
-		for (Enemy e : map[y][x].enemies) {
-			if (e.isAlive()) {
-				kill();
-				break;
-			}
+		if (map[y][x].isKilling()) {
+			kill();
 		}
 	}
 	
 	private void moveEnemies(float delta) {
-		int i = 0;
-		for (Enemy e : enemies) {
-			int x = Math.round(e.getPos().x);
-			int y = Math.round(e.getPos().y);	
+		for (Entry<Enemy, Integer> entry : allEnemies.entrySet()) {
+			Enemy e = entry.getKey();
+			int index = entry.getValue();
 			
-			map[y][x].enemies.remove(e);
+			int x = Math.round(e.getPos().x);
+			int y = Math.round(e.getPos().y);				
 			
 			e.update(delta);
-			//TODO: NPC должен получать сигналы когда врезается куда-нибудь
+			//TODO: NPC должен получать информацию о том что видит и где находится
 			posCorrection(e);
-			renderingModel.moveEnemyTo(i, e.getPos());
-			renderingModel.setEnemyDirection(i, e.getDirection());
-			i++;
+			renderingModel.moveEnemyTo(index, e.getPos());
+			renderingModel.setEnemyDirection(index, e.getDirection());
 
-			x = Math.round(e.getPos().x);
-			y = Math.round(e.getPos().y);	
+			int newX = Math.round(e.getPos().x);
+			int newY = Math.round(e.getPos().y);	
 			
-			map[y][x].enemies.add(e);
+			if (newX != x || newY != y) {
+				map[y][x].enemyOut(e);
+				map[newY][newX].enemyEnter(e);
+			}
 		}
 	}
 	
@@ -534,7 +554,7 @@ public class World implements WorldInput {
 		for(Map.Entry<Bomb, Position> entry : bombs.entrySet()) {
 			if (entry.getKey().update(delta)) {
 
-				player.playExplosion();
+				soundPlayer.playExplosion();
 				
 				Explosion b = new Explosion(entry.getValue().x, entry.getValue().y);
 				explosions.add(b);
@@ -551,14 +571,14 @@ public class World implements WorldInput {
 	private void updateExplosions(float delta) {
 		ArrayList <Explosion> removedExplosions = new ArrayList <Explosion>();
 		
-		for (Explosion b : explosions) {
-			if (b.update(delta)) {
-				for (Enemy e : b.killedEnemies) {
+		for (Explosion expl : explosions) {
+			if (expl.update(delta)) {
+				for (Enemy e : expl.killedEnemies) {
 					rmEnemy(e);
 				}
-				b.killedEnemies.clear();
-				b.cleanup(this);
-				removedExplosions.add(b);
+				expl.killedEnemies.clear();
+				expl.cleanup(this);
+				removedExplosions.add(expl);
 			}			
 		}
 		for (Explosion b : removedExplosions) {

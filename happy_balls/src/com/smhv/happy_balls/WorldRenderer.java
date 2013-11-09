@@ -7,6 +7,8 @@ package com.smhv.happy_balls;
     - поведение при ресайзе
  */
 
+import java.util.Map.Entry;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.FPSLogger;
@@ -205,8 +207,10 @@ public class WorldRenderer {
 	}
 
 	private void renderEnemies() {
-		for (RenderFreeObject enemy : world.enemies) {
-			draw(enemy.currentFrame(), enemy.getPos().x, enemy.getPos().y);
+		for (Entry<Integer, RenderFreeObject> entry : world.enemies.entrySet()) {
+			draw(entry.getValue().currentFrame(), 
+					entry.getValue().getPos().x, 
+					entry.getValue().getPos().y);
 		}
 		
 	}

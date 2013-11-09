@@ -124,7 +124,6 @@ public class Level {
 						&& random.nextBoolean()) {
 					boxes.add(lvl.new BoxDescription(x, y, Orientation.DEFAULT));
 				} else if ((Math.abs(w/2 - x) > 3 || Math.abs(h/2 - y) > 3)
-						&& random.nextBoolean() 
 						&& random.nextBoolean()) {
 					lvl.enemies.add(lvl.new ObjectDescription(x, y));
 				}

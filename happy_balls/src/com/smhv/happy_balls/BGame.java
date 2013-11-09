@@ -24,7 +24,7 @@ public class BGame extends Game {
 
 		Gdx.app.setLogLevel(Application.LOG_DEBUG);
 
-		Level lvl = Level.createTestLevel();
+		Level lvl = Level.createTestLevel02();
 
 		soundPlayer = new SoundPlayer();
 		soundPlayer.init();

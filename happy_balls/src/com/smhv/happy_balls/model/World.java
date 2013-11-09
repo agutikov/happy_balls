@@ -71,11 +71,11 @@ public class World implements WorldInput {
 			w.map[y][x].explode(this);		
 			if (y > 0)
 				w.map[y - 1][x].explode(this);
-			if (y < w.height)
+			if (y < w.height-1)
 				w.map[y + 1][x].explode(this);
 			if (x > 0)
 				w.map[y][x - 1].explode(this);
-			if (x < w.width)
+			if (x < w.width-1)
 				w.map[y][x + 1].explode(this);				
 		}
 		
@@ -83,11 +83,11 @@ public class World implements WorldInput {
 			w.map[y][x].unexplode();		
 			if (y > 0)
 				w.map[y - 1][x].unexplode();
-			if (y < w.height)
+			if (y < w.height-1)
 				w.map[y + 1][x].unexplode();
 			if (x > 0)
 				w.map[y][x - 1].unexplode();
-			if (x < w.width)
+			if (x < w.width-1)
 				w.map[y][x + 1].unexplode();	
 		}
 		
@@ -228,6 +228,7 @@ public class World implements WorldInput {
 		Enemy e = new Enemy(new Vector2(x, y));		
 		enemyCounter++;
 		allEnemies.put(e, enemyCounter);		
+		map[y][x].enemyEnter(e);
 		renderingModel.addEnemy(enemyCounter, new Vector2(x, y));
 		return e;
 	}		
@@ -267,7 +268,7 @@ public class World implements WorldInput {
 			width = lvl.mapWidth;
 			height = lvl.mapHeight;
 		
-			map = new MapCell[width][height];
+			map = new MapCell[height][width];
 			
 			for (int y = 0; y < height; y++) {
 				for (int x = 0; x < width; x++) {

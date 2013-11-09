@@ -8,7 +8,11 @@ import com.badlogic.gdx.math.Vector2;
 public class Enemy extends FreeObject {
 
 
+	private static int counter = 0;
+	
 	private static Random random = new Random(); // seed ?
+	
+	private int index;
 	
 	/*
 	 * Идея в том чтобы эта штука как-бы управляла сама собой.
@@ -16,8 +20,16 @@ public class Enemy extends FreeObject {
 	
 	public Enemy(Vector2 pos) {
 		super("enemy", pos);
-		goingTime = random.nextFloat() * 4;
-		speed = random.nextFloat() * 4f + 1f;
+		goingTime = random.nextFloat() * 20;
+		speed = random.nextFloat() * 1f + 1f;
+		
+		counter++;
+		index = counter;
+		Gdx.app.debug("new enemy", "" + index);
+	}
+	
+	protected void finalize() {
+		Gdx.app.debug("killed enemy", "" + index);
 	}
 	
 	private float goingTime = 1.0f;

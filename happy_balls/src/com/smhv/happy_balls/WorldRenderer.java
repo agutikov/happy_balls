@@ -50,8 +50,8 @@ public class WorldRenderer {
 	private float ppuX = 32;	// пикселей на ячейку мира по X 
 	private float ppuY = 32;	// пикселей на ячейку мира по Y 
 	
-    private static final float CAMERA_WIDTH  = 512f;
-    private static final float CAMERA_HEIGHT = 512f;
+    private static final float CAMERA_WIDTH  = 840f;
+    private static final float CAMERA_HEIGHT = 480f;
     
 	public WorldRenderer(WorldRenderingModel model) {
 		this.world = model;		
@@ -161,7 +161,7 @@ public class WorldRenderer {
 			fps = fpsCount / ((float)(curr - lastTime)/1000);
 			fpsCount = 0;
 			lastTime = curr;			
-			fpsLogger.log();
+		//	fpsLogger.log();
 		}
 		fpsCount++;
 		

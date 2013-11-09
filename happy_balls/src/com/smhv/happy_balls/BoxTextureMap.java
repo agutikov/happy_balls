@@ -19,9 +19,5 @@ public class BoxTextureMap {
 		boxRegions[2] = tmp[0][2];
 		boxRegions[3] = tmp[0][3];		
 	}
-	
-	public TextureRegion getFrame (int i) {
-		return boxRegions[i];
-	}
 
 }

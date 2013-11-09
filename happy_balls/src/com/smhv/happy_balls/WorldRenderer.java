@@ -227,6 +227,9 @@ public class WorldRenderer {
 		if (cell.top != null) {
 			drawRotated(cell.top.texture.textureRegion, x, y, cell.top.rot);
 		}
+		if (cell.box != null) {
+			draw(cell.box.currentFrame(), x, y);
+		}
 	}
 	
 	private void renderMap() {

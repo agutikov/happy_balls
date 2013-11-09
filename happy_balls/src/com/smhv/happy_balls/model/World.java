@@ -160,10 +160,6 @@ public class World implements WorldInput {
 			bomb = null;
 			renderingModel.rmFixedTop(x, y);
 		}
-		public void rmBox () {
-			box = null;
-			renderingModel.rmFixedTop(x, y);
-		}
 		
 		public boolean isPassable () {
 			if (box != null)
@@ -179,13 +175,12 @@ public class World implements WorldInput {
 			if (box != null && box.isEternal()) {
 				
 			} else {
-				if (box != null && !box.isEternal()) {
-					rmBox();
-				}
 				if (bomb != null) {
 					bomb.detonate();
-				}
-				
+				}	
+				if (box != null && !box.isEternal()) {
+					renderingModel.explodeBox(x, y);
+				}			
 				for (Enemy e : enemiesInThisCell) {
 					soundPlayer.playMurder();
 					e.kill();				
@@ -201,6 +196,10 @@ public class World implements WorldInput {
 		}
 		
 		public void unexplode() {
+			if (box != null && !box.isEternal()) {
+				box = null;
+				renderingModel.rmFixedTop(x, y);
+			}
 			renderingModel.rmExplosion(x, y);	
 			isExploading = false;		
 		}

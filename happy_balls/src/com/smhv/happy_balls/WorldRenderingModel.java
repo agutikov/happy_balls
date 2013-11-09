@@ -63,6 +63,8 @@ public class WorldRenderingModel {
 		
 		public RenderObject bottom;
 		public RenderObject top;
+		
+		public RenderBoxObject box;
 	}
 	
 	private Map<String, String> textureMap;
@@ -81,10 +83,18 @@ public class WorldRenderingModel {
 		textureMap = objTextureMap;
 	}
 	
+	ArrayList <RenderBoxObject> boxes = new ArrayList <RenderBoxObject> ();
+	ArrayList <RenderBoxObject> exploadedBoxes = new ArrayList <RenderBoxObject> ();
+	
 	public void setFixedTop(String objName, int x, int y, FixedObject.Orientation orient) {
-		renderingMap[y][x].top = new RenderObject(
-				textureGlobalRegions.get(textureMap.get(objName)),
-				or2deg(orient));
+		if (objName != "box") {
+			renderingMap[y][x].top = new RenderObject(
+					textureGlobalRegions.get(textureMap.get(objName)),
+					or2deg(orient));
+		} else {
+			renderingMap[y][x].box = new RenderBoxObject(boxTextureMap);
+			boxes.add(renderingMap[y][x].box);
+		}
 	}
 	public void setFixedBottom(String objName, int x, int y, FixedObject.Orientation orient) {
 		renderingMap[y][x].bottom = new RenderObject(
@@ -92,14 +102,25 @@ public class WorldRenderingModel {
 				or2deg(orient));
 	}
 	public void rmFixedTop(int x, int y) {
-		renderingMap[y][x].top = null;
+		if (renderingMap[y][x].top != null)
+			renderingMap[y][x].top = null;
+		if (renderingMap[y][x].box != null) {
+			exploadedBoxes.remove(renderingMap[y][x].box);
+			renderingMap[y][x].box = null;
+		}
 	}
 	
+	public void explodeBox (int x, int y) {
+		boxes.remove(renderingMap[y][x].box);
+		exploadedBoxes.add(renderingMap[y][x].box);
+		renderingMap[y][x].box.explode();
+	}
 	//TODO: перейти на использование спрайтов
 	//TODO: SpriteCache
 
 	public FreeObjectTextureMap protagonistTextureMap;
 	public FreeObjectTextureMap enemyTextureMap;
+	public BoxTextureMap boxTextureMap;
 	
 	
 	public RenderFreeObject protagonistRenderObject;		
@@ -131,6 +152,9 @@ public class WorldRenderingModel {
 		protagonistRenderObject.update(delta);
 		for (Entry<Integer, RenderFreeObject> entry : enemies.entrySet()) {
 			entry.getValue().update(delta);
+		}
+		for (RenderBoxObject box : exploadedBoxes) {
+			box.update(delta);
 		}
 	}
 	
@@ -223,6 +247,7 @@ public class WorldRenderingModel {
 	
 		enemyTextureMap = new FreeObjectTextureMap("graphics/enemy_sprite.png");
 		
+		boxTextureMap = new BoxTextureMap("graphics/box_sprite.png");
 		
 	}
 }

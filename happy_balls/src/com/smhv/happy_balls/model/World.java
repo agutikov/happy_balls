@@ -57,11 +57,12 @@ public class World implements WorldInput {
 		private int y;
 		
 		private float timeLeft;
+		private float unexplodeTime = 0.25f;
 		
 		public Explosion(int x, int y) {
 			this.x = x;
 			this.y = y;
-			timeLeft = 0.3f;
+			timeLeft = 0.4f;
 			
 			killedEnemies = new ArrayList<Enemy>();
 		}
@@ -69,17 +70,30 @@ public class World implements WorldInput {
 		//TODO: разные модели взрыва - ограничение по расстоянию или по площади, направление распространения (за угол)
 		public void perform(World w) {			
 			w.map[y][x].explode(this);		
-			if (y > 0)
-				w.map[y - 1][x].explode(this);
-			if (y < w.height-1)
+			renderingModel.setExplosion(x, y, ExplosionPart.CENTER);
+			if (y > 0) {
+				w.map[y - 1][x].explode(this); 
+				if (w.map[y - 1][x].isExploading)
+					renderingModel.setExplosion(x, y-1, ExplosionPart.END_D);
+			}	
+			if (y < w.height-1) {
 				w.map[y + 1][x].explode(this);
-			if (x > 0)
+				if (w.map[y + 1][x].isExploading)
+					renderingModel.setExplosion(x, y+1, ExplosionPart.END_U);
+			}	
+			if (x > 0) {
 				w.map[y][x - 1].explode(this);
-			if (x < w.width-1)
-				w.map[y][x + 1].explode(this);				
+				if (w.map[y][x - 1].isExploading)
+					renderingModel.setExplosion(x-1, y, ExplosionPart.END_L);
+			}
+			if (x < w.width-1) {
+				w.map[y][x + 1].explode(this);	
+				if (w.map[y][x + 1].isExploading)
+					renderingModel.setExplosion(x+1, y, ExplosionPart.END_R);
+			}
 		}
 		
-		public void cleanup(World w) {			
+		public void unexplode(World w) {			
 			w.map[y][x].unexplode();		
 			if (y > 0)
 				w.map[y - 1][x].unexplode();
@@ -91,12 +105,28 @@ public class World implements WorldInput {
 				w.map[y][x + 1].unexplode();	
 		}
 		
+		public void cleanup(World w) {		
+			w.map[y][x].cleanup();		
+			if (y > 0)
+				w.map[y - 1][x].cleanup();
+			if (y < w.height-1)
+				w.map[y + 1][x].cleanup();
+			if (x > 0)
+				w.map[y][x - 1].cleanup();
+			if (x < w.width-1)
+				w.map[y][x + 1].cleanup();			
+		}
+		
 		//TODO: общий тип временных объектов
 		
 		public boolean update(float delta) {
 			timeLeft -= delta;
 			
 			return timeLeft <= 0;		
+		}
+		
+		public boolean isUnexploaded() {
+			return timeLeft <= unexplodeTime;
 		}
 
 	}
@@ -189,19 +219,20 @@ public class World implements WorldInput {
 					explosion.killedEnemies.add(e);
 				}
 				enemiesInThisCell.clear();
-				
-				renderingModel.setExplosion(x, y, ExplosionPart.CENTER);
 				isExploading = true;
 			}
 		}
 		
 		public void unexplode() {
+			renderingModel.rmExplosion(x, y);	
+			isExploading = false;		
+		}
+		
+		public void cleanup() {
 			if (box != null && !box.isEternal()) {
 				box = null;
 				renderingModel.rmFixedTop(x, y);
-			}
-			renderingModel.rmExplosion(x, y);	
-			isExploading = false;		
+			}	
 		}
 	}
 	private MapCell[][] map;
@@ -561,6 +592,9 @@ public class World implements WorldInput {
 				b.perform(this);
 				removedBombs.add(entry.getKey());
 			}
+			
+			renderingModel.setBombState(entry.getKey().getState(), 
+					entry.getValue().x, entry.getValue().y);
 		}
 		for (Bomb b : removedBombs) {
 			rmBomb(b);			
@@ -576,10 +610,12 @@ public class World implements WorldInput {
 				for (Enemy e : expl.killedEnemies) {
 					rmEnemy(e);
 				}
-				expl.killedEnemies.clear();
 				expl.cleanup(this);
+				expl.killedEnemies.clear();
 				removedExplosions.add(expl);
-			}			
+			} else if (expl.isUnexploaded()) {
+				expl.unexplode(this);				
+			}
 		}
 		for (Explosion b : removedExplosions) {
 			explosions.remove(b);			

@@ -3,14 +3,12 @@ package com.smhv.happy_balls;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 
 import com.smhv.happy_balls.model.WorldInput;
 import com.smhv.happy_balls.model.WorldInput.ControlDirection;
 
 import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.utils.TimeUtils;
 
 public class InputController implements InputProcessor {
 	

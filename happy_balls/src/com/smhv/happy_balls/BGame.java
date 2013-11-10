@@ -2,7 +2,6 @@ package com.smhv.happy_balls;
 
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.Game;
 
 public class BGame extends Game {
@@ -37,7 +36,8 @@ public class BGame extends Game {
 		gameScreen.loadResources();
 		
 		gameScreen.setLevel(lvl);	
-		
+
+		setScreen(menuScreen);
 		setScreen(gameScreen);
 	}
 

@@ -7,7 +7,6 @@ import java.util.Map.Entry;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.smhv.happy_balls.RenderFreeObject.FreeObjectState;
@@ -64,6 +63,7 @@ public class WorldRenderingModel {
 		public RenderObject bottom;
 		public RenderObject top;
 		
+		public RenderBombObject bomb;
 		public RenderBoxObject box;
 	}
 	
@@ -87,13 +87,15 @@ public class WorldRenderingModel {
 	ArrayList <RenderBoxObject> exploadedBoxes = new ArrayList <RenderBoxObject> ();
 	
 	public void setFixedTop(String objName, int x, int y, FixedObject.Orientation orient) {
-		if (objName != "box") {
+		if (objName == "bomb") {
+			renderingMap[y][x].bomb = new RenderBombObject(bombExplosionTextureMap);
+		} else if (objName == "box") {
+			renderingMap[y][x].box = new RenderBoxObject(boxTextureMap);
+			boxes.add(renderingMap[y][x].box);
+		} else {
 			renderingMap[y][x].top = new RenderObject(
 					textureGlobalRegions.get(textureMap.get(objName)),
 					or2deg(orient));
-		} else {
-			renderingMap[y][x].box = new RenderBoxObject(boxTextureMap);
-			boxes.add(renderingMap[y][x].box);
 		}
 	}
 	public void setFixedBottom(String objName, int x, int y, FixedObject.Orientation orient) {
@@ -108,6 +110,9 @@ public class WorldRenderingModel {
 			exploadedBoxes.remove(renderingMap[y][x].box);
 			renderingMap[y][x].box = null;
 		}
+		if (renderingMap[y][x].bomb != null) {
+			renderingMap[y][x].bomb = null;
+		}
 	}
 	
 	public void explodeBox (int x, int y) {
@@ -121,6 +126,7 @@ public class WorldRenderingModel {
 	public FreeObjectTextureMap protagonistTextureMap;
 	public FreeObjectTextureMap enemyTextureMap;
 	public BoxTextureMap boxTextureMap;
+	public BombExplosionTextureMap bombExplosionTextureMap;
 	
 	
 	public RenderFreeObject protagonistRenderObject;		
@@ -130,6 +136,9 @@ public class WorldRenderingModel {
 		protagonistRenderObject.kill();
 	}
 	
+	public void setBombState(int state, int x, int y) {
+		renderingMap[y][x].bomb.setState(state);
+	}
 	
 	public void resurrection() {
 		protagonistRenderObject.resurrection();
@@ -177,11 +186,12 @@ public class WorldRenderingModel {
 	}
 	
 	public void setExplosion (int x, int y, ExplosionPart part) {
-		
+		renderingMap[y][x].explosion = true;
+		renderingMap[y][x].part = part;
 	}
 	
 	public void rmExplosion (int x, int y) {
-		
+		renderingMap[y][x].explosion = false;
 	}
 	
 	// world coordinates
@@ -247,7 +257,8 @@ public class WorldRenderingModel {
 	
 		enemyTextureMap = new FreeObjectTextureMap("graphics/enemy_sprite.png");
 		
-		boxTextureMap = new BoxTextureMap("graphics/box_sprite.png");
+		boxTextureMap = new BoxTextureMap("graphics/box_sprite.png");		
 		
+		bombExplosionTextureMap = new BombExplosionTextureMap("graphics/bomb_sprite.png");
 	}
 }

@@ -10,17 +10,14 @@ package com.smhv.happy_balls;
 import java.util.Map.Entry;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.FPSLogger;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.smhv.happy_balls.WorldRenderingModel.RenderingCell;
 
@@ -197,7 +194,22 @@ public class WorldRenderer {
 	}
 
 	private void renderExplosions() {
-		
+		for (int y = 0; y < world.renderingMap.length; y++) {
+			for (int x = 0; x < world.renderingMap[y].length; x++) {
+				if (world.renderingMap[y][x].explosion) {
+					
+					//TODO в рендеринг модели использовать только спрайты
+					// это решит вопрос со всеми поворотами, отражениями и координатами
+					// тупа один спрайт для каждого статического элемента
+					
+					world.bombExplosionTextureMap.explosionSprites.get(
+							world.renderingMap[y][x].part).setPosition(x*ppuX, y*ppuY);
+					
+					world.bombExplosionTextureMap.explosionSprites.get(
+							world.renderingMap[y][x].part).draw(spriteBatch);
+				}
+			}
+		}
 	}
 	
 	private void renderProtagonist() {
@@ -229,6 +241,9 @@ public class WorldRenderer {
 		}
 		if (cell.box != null) {
 			draw(cell.box.currentFrame(), x, y);
+		}
+		if (cell.bomb != null) {
+			draw(cell.bomb.currentFrame(), x, y);
 		}
 	}
 	

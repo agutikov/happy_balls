@@ -1,15 +1,8 @@
 package com.smhv.happy_balls;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 
-import com.badlogic.gdx.graphics.GL10;
-import com.badlogic.gdx.utils.TimeUtils;
-import com.badlogic.gdx.math.Vector2;
-
-import com.badlogic.gdx.graphics.FPSLogger;
 
 import com.smhv.happy_balls.model.*;
 

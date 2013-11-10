@@ -8,7 +8,7 @@ public class RenderBoxObject {
 	BoxTextureMap textureMap;
 	private Animation explosionAnimation;
 
-	float stateTime = 0;
+	float stateTime = -0.2f;
 	
 	boolean exploaded = false;
 	
@@ -28,7 +28,7 @@ public class RenderBoxObject {
 	}
 	
 	public TextureRegion currentFrame() {
-		return explosionAnimation.getKeyFrame(stateTime);
+		return explosionAnimation.getKeyFrame(stateTime > 0 ? stateTime : 0);
 	}
 
 }

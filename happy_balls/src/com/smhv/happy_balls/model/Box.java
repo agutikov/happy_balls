@@ -1,12 +1,29 @@
 package com.smhv.happy_balls.model;
 
-public class Box extends FixedObject {
+import java.util.Random;
 
+public class Box extends FixedObject {
+	
+	private static Random random = new Random();
+	
 	private int hitpoints;
 	private boolean breakable;
 	
 	public boolean isEternal() {
 		return !breakable;
+	}
+	
+	public boolean explode() {
+		if (breakable) {
+			hitpoints--;
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	public boolean isAlive() {
+		return hitpoints > 0;
 	}
 	
 	public Box(String type, Orientation orient) {
@@ -15,13 +32,13 @@ public class Box extends FixedObject {
 			hitpoints = 1;
 			breakable = true;
 		} else if (type == "brick") {
-			hitpoints = 0;
+			hitpoints = 1;
 			breakable = false;
 		} else if (type == "wall") {
-			hitpoints = 0;
+			hitpoints = 1;
 			breakable = false;
 		} else if (type == "corner") {
-			hitpoints = 0;
+			hitpoints = 1;
 			breakable = false;
 		}
 	}

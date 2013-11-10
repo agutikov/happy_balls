@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
@@ -115,6 +116,14 @@ public class WorldRenderingModel {
 		}
 	}
 	
+	public void highlightProtagonist () {
+		protagonistRenderObject.tintColor = new Color(1, 1, 1, 0.5f);
+		protagonistRenderObject.tint = true;
+	}
+	public void unhighlightProtagonist () {
+		protagonistRenderObject.tint = false;
+	}
+		
 	public void explodeBox (int x, int y) {
 		boxes.remove(renderingMap[y][x].box);
 		exploadedBoxes.add(renderingMap[y][x].box);
@@ -168,11 +177,11 @@ public class WorldRenderingModel {
 	}
 	
 	// world coordinates
-	public void moveProtagonistTo (Vector2 pos) {	
+	public void moveProtagonistTo (float x, float y) {	
 		
-		renderer.SetCamera(pos.x, pos.y);
+		renderer.SetCamera(x, y);
 
-		protagonistRenderObject.setPos(pos);
+		protagonistRenderObject.setPos(x, y);
 	}
 	
 	public enum ExplosionPart {
@@ -205,7 +214,7 @@ public class WorldRenderingModel {
 	
 	// world coordinates
 	public void moveEnemyTo (int i, Vector2 pos) {
-		enemies.get(i).setPos(pos);
+		enemies.get(i).setPos(pos.x, pos.y);
 	}
 	
 	public void killEnemy(int i) {

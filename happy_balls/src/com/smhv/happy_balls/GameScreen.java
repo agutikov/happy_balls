@@ -73,6 +73,8 @@ public class GameScreen implements Screen {
 		Gdx.app.debug("", "GameScreen.show()");
 		
 		Gdx.input.setInputProcessor(input);
+
+		Gdx.graphics.setContinuousRendering(true);
 		
 		soundPlayer.startGameTrack();
 		

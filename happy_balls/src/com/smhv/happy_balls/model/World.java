@@ -30,7 +30,7 @@ public class World implements WorldInput {
 	private Map<Enemy, Integer> allEnemies;	
 	
 	Position respawn;
-	private float respawnTime = 1f;
+	private float respawnTime = 2f;
 	private float respawnTimeLeft;
 	
 	public class Position {
@@ -67,29 +67,32 @@ public class World implements WorldInput {
 			killedEnemies = new ArrayList<Enemy>();
 		}
 		
-		private void explodeCell(World w, int x, int y, ExplosionPart part) {
+		private boolean explodeCell(World w, int x, int y, ExplosionPart part) {
 			if (x >= 0 && x < w.width && y >= 0 && y < w.height) {
 				w.map[y][x].explode(this); 
-				if (w.map[y][x].isExploading)
+				if (w.map[y][x].isExploading) {
 					renderingModel.setExplosion(x, y, part);
+					return true;
+				}
 			}
+			return false;
 		}
 		
 		//TODO: разные модели взрыва - ограничение по расстоянию или по площади, направление распространения (за угол)
 		public void perform(World w) {	
 			explodeCell(w, x, y, ExplosionPart.CENTER);
 			
-			explodeCell(w, x, y+1, ExplosionPart.PASS_V);
-			explodeCell(w, x, y+2, ExplosionPart.END_U);
+			if (explodeCell(w, x, y+1, ExplosionPart.PASS_V))
+				explodeCell(w, x, y+2, ExplosionPart.END_U);
 			
-			explodeCell(w, x, y-1, ExplosionPart.PASS_V);
-			explodeCell(w, x, y-2, ExplosionPart.END_D);
+			if (explodeCell(w, x, y-1, ExplosionPart.PASS_V))
+				explodeCell(w, x, y-2, ExplosionPart.END_D);
 			
-			explodeCell(w, x-1, y, ExplosionPart.PASS_H);
-			explodeCell(w, x-2, y, ExplosionPart.END_L);
+			if (explodeCell(w, x-1, y, ExplosionPart.PASS_H))
+				explodeCell(w, x-2, y, ExplosionPart.END_L);
 			
-			explodeCell(w, x+1, y, ExplosionPart.PASS_H);
-			explodeCell(w, x+2, y, ExplosionPart.END_R);
+			if (explodeCell(w, x+1, y, ExplosionPart.PASS_H))
+				explodeCell(w, x+2, y, ExplosionPart.END_R);
 		}
 		
 		private void unexplodeCell(World w, int x, int y) {
@@ -213,25 +216,25 @@ public class World implements WorldInput {
 		}
 		
 		public void explode(Explosion explosion) {
-			if (box != null && box.isEternal()) {
-				
-			} else {
-				if (bomb != null) {
-					bomb.detonate();
-				}	
-				if (box != null && !box.isEternal()) {
+
+			if (bomb != null) {
+				bomb.detonate();
+			}	
+			if (box != null) {
+				if (box.explode())
 					renderingModel.explodeBox(x, y);
-				}			
-				for (Enemy e : enemiesInThisCell) {
-					soundPlayer.playMurder();
-					e.kill();				
-					int index = allEnemies.get(e);	
-					renderingModel.killEnemy(index);					
-					explosion.killedEnemies.add(e);
-				}
-				enemiesInThisCell.clear();
-				isExploading = true;
+				else
+					return;
+			}			
+			for (Enemy e : enemiesInThisCell) {
+				soundPlayer.playMurder();
+				e.kill();				
+				int index = allEnemies.get(e);	
+				renderingModel.killEnemy(index);					
+				explosion.killedEnemies.add(e);
 			}
+			enemiesInThisCell.clear();
+			isExploading = true;
 		}
 		
 		public void unexplode() {
@@ -240,7 +243,7 @@ public class World implements WorldInput {
 		}
 		
 		public void cleanup() {
-			if (box != null && !box.isEternal()) {
+			if (box != null && !box.isAlive()) {
 				box = null;
 				renderingModel.rmFixedTop(x, y);
 			}	
@@ -259,12 +262,6 @@ public class World implements WorldInput {
 		soundPlayer = sp;
 	}
 
-	private Protagonist resetProtagonist(int x, int y) {		
-		protagonist = new Protagonist(new Vector2(x, y));
-		renderingModel.moveProtagonistTo(new Vector2(x, y));
-		renderingModel.resurrection();
-		return protagonist;
-	}		
 	private Enemy addEnemy(int x, int y) {
 		Enemy e = new Enemy(new Vector2(x, y));		
 		enemyCounter++;
@@ -332,8 +329,9 @@ public class World implements WorldInput {
 			for (ObjectDescription desc : lvl.enemies) {
 				addEnemy(desc.x, desc.y);
 			}
-			respawn = new Position(lvl.protDesc.x, lvl.protDesc.y);
-			resetProtagonist(lvl.protDesc.x, lvl.protDesc.y);
+			respawn = new Position(lvl.protDesc.x, lvl.protDesc.y);	
+			protagonist = new Protagonist(new Vector2(lvl.protDesc.x, lvl.protDesc.y));
+			renderingModel.moveProtagonistTo(lvl.protDesc.x, lvl.protDesc.y);
 	}
 	
 	long lastLogTime = 0;
@@ -547,6 +545,9 @@ public class World implements WorldInput {
 	
 	public void update(float delta) {
 		protagonist.update(delta);
+		if (protagonist.isUndamagableDisabled())
+			renderingModel.unhighlightProtagonist();
+			
 		posCorrection(protagonist);		
 		{
 			int x = Math.round(protagonist.getPos().x);
@@ -556,7 +557,7 @@ public class World implements WorldInput {
 				kill();
 			}
 		}		
-		renderingModel.moveProtagonistTo(protagonist.getPos());
+		renderingModel.moveProtagonistTo(protagonist.getPos().x, protagonist.getPos().y);
 		renderingModel.setProtagonistDirection(protagonist.getDirection());
 
 		moveEnemies(delta);
@@ -573,7 +574,10 @@ public class World implements WorldInput {
 				respawnTimeLeft -= delta;
 			} else {
 				protagonist.resurrection();
-				resetProtagonist(respawn.x, respawn.y);
+				renderingModel.resurrection();
+				protagonist.setPos(respawn.x, respawn.y);
+				renderingModel.moveProtagonistTo(respawn.x, respawn.y);
+				renderingModel.highlightProtagonist();
 			}
 		}
 	}

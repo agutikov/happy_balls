@@ -165,10 +165,12 @@ public class WorldRenderer {
 		
 		spriteBatch.begin();		
 		renderMap();	
-		renderEnemies();
+		spriteBatch.enableBlending();
+		renderEnemies();		
 		renderProtagonist();
 		renderExplosions();
 		renderFPS();
+		spriteBatch.disableBlending();
 		spriteBatch.end();			 
 	}
 	
@@ -213,9 +215,15 @@ public class WorldRenderer {
 	}
 	
 	private void renderProtagonist() {
+		if (world.protagonistRenderObject.tint) {
+			spriteBatch.setColor(world.protagonistRenderObject.tintColor);
+		}
 		draw(world.protagonistRenderObject.currentFrame(), 
 				world.protagonistRenderObject.getPos().x, 
-				world.protagonistRenderObject.getPos().y);		
+				world.protagonistRenderObject.getPos().y);	
+		if (world.protagonistRenderObject.tint) {
+			spriteBatch.setColor(1f, 1f, 1f, 1f);	
+		}
 	}
 
 	private void renderEnemies() {
@@ -243,7 +251,9 @@ public class WorldRenderer {
 			draw(cell.box.currentFrame(), x, y);
 		}
 		if (cell.bomb != null) {
+			spriteBatch.enableBlending();
 			draw(cell.bomb.currentFrame(), x, y);
+			spriteBatch.disableBlending();
 		}
 	}
 	

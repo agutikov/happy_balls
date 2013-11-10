@@ -1,11 +1,15 @@
 package com.smhv.happy_balls;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 
 public class RenderFreeObject {
 
+	public Color tintColor = new Color(1, 1, 1, 1);;
+	public boolean tint = false;
+	
 	FreeObjectTextureMap textureMap;
 	
 	private Animation walkUpAnimation;
@@ -35,6 +39,7 @@ public class RenderFreeObject {
 	FreeObjectState state = FreeObjectState.STAND;
 	
 	public RenderFreeObject(FreeObjectTextureMap tm) {
+		position = new Vector2(0, 0);
 		textureMap = tm;
 				
 		walkUpAnimation = new Animation(speed, textureMap.walkUpFrames);		
@@ -79,8 +84,9 @@ public class RenderFreeObject {
 		state = FreeObjectState.DEAD;
 	}
 	
-	public void setPos(Vector2 pos) {
-		position = pos;
+	public void setPos(float x, float y) {
+		position.x = x;
+		position.y = y;
 	}
 	
 	public Vector2 getPos() {

@@ -36,7 +36,7 @@ public class BGame extends Game {
 		gameScreen.loadResources();
 		
 		gameScreen.setLevel(lvl);	
-
+		
 		setScreen(menuScreen);
 		setScreen(gameScreen);
 	}

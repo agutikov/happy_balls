@@ -37,12 +37,19 @@ public abstract class FreeObject extends WorldObject {
 	
 	public Vector2 getPos() {
 		return position;
+	}	
+	
+	public void setPos(float x, float y) {
+		position.x = x;
+		position.y = y;
 	}
 	
 	public FreeObject(String name, Vector2 pos) {
 		super(name);
 		position = pos;
 	}
+	
+	
 	
 	public boolean isGoingUp() {
 		return velocity.y > 0;

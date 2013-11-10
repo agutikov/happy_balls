@@ -135,7 +135,7 @@ public class WorldRenderer {
 		 */
 	}	
 	
-	public void SetCamera(float x, float y){
+	public void setCamera(float x, float y){
 		camera.position.set((x+0.5f)*ppuX, (y+0.5f)*ppuY, 0);
 		camera.update();
 	}	

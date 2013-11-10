@@ -18,20 +18,29 @@ public class GameScreen implements Screen {
 	
 	private boolean running = false;
 
+	BGame game;
 
 	/*
 	 * Initialize game engine, no real game data loaded.
 	 */	
-	public GameScreen(SoundPlayer sp) {
+	public GameScreen(BGame game, SoundPlayer sp) {
+		
+		this.game = game;
 		
 		soundPlayer = sp;
 		
 		model = new WorldRenderingModel();
 		world = new World(model, sp);
 		renderer = new WorldRenderer(model);
-		input = new InputController(world);
+		input = new InputController(world, this);
 		
 		model.renderer = renderer;
+	}
+	
+	public void gotoMainMenu() {
+		game.pause();
+		
+		game.setScreen(game.menuScreen);
 	}
 	
 	/*

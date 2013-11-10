@@ -179,7 +179,7 @@ public class WorldRenderingModel {
 	// world coordinates
 	public void moveProtagonistTo (float x, float y) {	
 		
-		renderer.SetCamera(x, y);
+		renderer.setCamera(x, y);
 
 		protagonistRenderObject.setPos(x, y);
 	}

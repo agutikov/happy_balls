@@ -9,8 +9,8 @@ public class BGame extends Game {
 
 	
 
-	private GameScreen gameScreen;
-	private MenuScreen menuScreen;
+	protected GameScreen gameScreen;
+	protected MenuScreen menuScreen;
 	
 	private SoundPlayer soundPlayer;
 	
@@ -23,22 +23,17 @@ public class BGame extends Game {
 
 		Gdx.app.setLogLevel(Application.LOG_DEBUG);
 
-		Level lvl = Level.createTestLevel01();
 
 		soundPlayer = new SoundPlayer();
 		soundPlayer.init();
 		
-		gameScreen = new GameScreen(soundPlayer);
-		menuScreen = new MenuScreen(soundPlayer);
+		gameScreen = new GameScreen(this, soundPlayer);
+		menuScreen = new MenuScreen(this, soundPlayer);
 		
-		
-		
-		gameScreen.loadResources();
-		
-		gameScreen.setLevel(lvl);	
+
+		menuScreen.loadResources();
 		
 		setScreen(menuScreen);
-		setScreen(gameScreen);
 	}
 
 	@Override

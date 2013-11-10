@@ -14,6 +14,8 @@ public class InputController implements InputProcessor {
 	
 	WorldInput world;
 	
+	GameScreen screen;
+	
 	enum Keys {
 		LEFT, RIGHT, UP, DOWN
 	}	
@@ -26,8 +28,9 @@ public class InputController implements InputProcessor {
 		keys.put(Keys.DOWN, false);
 	};
 
-	public InputController(WorldInput controlledWorld) {
+	public InputController(WorldInput controlledWorld, GameScreen screen) {
 		world = controlledWorld;
+		this.screen = screen;
 	}
 	
 
@@ -50,6 +53,10 @@ public class InputController implements InputProcessor {
 		case Input.Keys.SPACE:
 			// no need to save the state like with direction keys
 			world.putBomb();
+			break;
+
+		case Input.Keys.ESCAPE:
+			screen.gotoMainMenu();
 			break;
 		};
 		

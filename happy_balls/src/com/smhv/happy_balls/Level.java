@@ -194,6 +194,7 @@ public class Level {
 		
 		
 		lvl.enemies.add(lvl.new ObjectDescription(0, 0));
+		lvl.enemies.add(lvl.new ObjectDescription(0, 0));
 		
 		
 		lvl.protDesc = lvl.new ObjectDescription(3, 0);

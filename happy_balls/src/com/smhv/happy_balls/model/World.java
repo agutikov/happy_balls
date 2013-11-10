@@ -70,10 +70,9 @@ public class World implements WorldInput {
 		private boolean explodeCell(World w, int x, int y, ExplosionPart part) {
 			if (x >= 0 && x < w.width && y >= 0 && y < w.height) {
 				w.map[y][x].explode(this); 
-				if (w.map[y][x].isExploading) {
+				if (w.map[y][x].isExploading)
 					renderingModel.setExplosion(x, y, part);
-					return true;
-				}
+				return map[y][x].isPassable();				
 			}
 			return false;
 		}

@@ -88,7 +88,7 @@ public class MenuScreen implements Screen, InputProcessor {
 		
 
 		game.gameScreen.loadResources();		
-		Level lvl = Level.createTestLevel03();
+		Level lvl = Level.createTestLevel01();
 		game.gameScreen.setLevel(lvl);	
 				
 		

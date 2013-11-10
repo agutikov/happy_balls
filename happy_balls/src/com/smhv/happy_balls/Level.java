@@ -169,4 +169,37 @@ public class Level {
 		return lvl;
 	}
 	
+	
+	public static Level createTestLevel03() {
+
+		int w = 10;
+		int h = 1;
+		
+		Level lvl = new Level(w, h);
+		
+		lvl.objectSpriteNames = spriteNames;
+		
+		for (int y = 0; y < h; y++) {
+			for (int x = 0; x < w; x++) {				
+				lvl.grounds.add(lvl.new ObjectDescription(x, y));
+			}
+		}
+		
+
+		Array<BoxDescription> bricks = new Array<BoxDescription>();
+
+		bricks.add(lvl.new BoxDescription(1, 0, Orientation.DEFAULT));
+		
+		lvl.boxes.put("box", bricks);
+		
+		
+		lvl.enemies.add(lvl.new ObjectDescription(0, 0));
+		
+		
+		lvl.protDesc = lvl.new ObjectDescription(3, 0);
+		
+		return lvl;
+	}
+	
+	
 }

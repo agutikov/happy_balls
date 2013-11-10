@@ -21,8 +21,9 @@ public abstract class FreeObject extends WorldObject {
 
 	protected boolean alive = true;
 	
-	public void kill() {
+	public boolean kill() {
 		alive = false;
+		return true;
 	}
 	
 	public boolean isAlive() {

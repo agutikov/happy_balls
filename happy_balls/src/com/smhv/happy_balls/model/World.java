@@ -30,7 +30,7 @@ public class World implements WorldInput {
 	private Map<Enemy, Integer> allEnemies;	
 	
 	Position respawn;
-	private float respawnTime = 3f;
+	private float respawnTime = 1f;
 	private float respawnTimeLeft;
 	
 	public class Position {
@@ -67,54 +67,65 @@ public class World implements WorldInput {
 			killedEnemies = new ArrayList<Enemy>();
 		}
 		
-		//TODO: разные модели взрыва - ограничение по расстоянию или по площади, направление распространения (за угол)
-		public void perform(World w) {			
-			w.map[y][x].explode(this);		
-			renderingModel.setExplosion(x, y, ExplosionPart.CENTER);
-			if (y > 0) {
-				w.map[y - 1][x].explode(this); 
-				if (w.map[y - 1][x].isExploading)
-					renderingModel.setExplosion(x, y-1, ExplosionPart.END_D);
-			}	
-			if (y < w.height-1) {
-				w.map[y + 1][x].explode(this);
-				if (w.map[y + 1][x].isExploading)
-					renderingModel.setExplosion(x, y+1, ExplosionPart.END_U);
-			}	
-			if (x > 0) {
-				w.map[y][x - 1].explode(this);
-				if (w.map[y][x - 1].isExploading)
-					renderingModel.setExplosion(x-1, y, ExplosionPart.END_L);
-			}
-			if (x < w.width-1) {
-				w.map[y][x + 1].explode(this);	
-				if (w.map[y][x + 1].isExploading)
-					renderingModel.setExplosion(x+1, y, ExplosionPart.END_R);
+		private void explodeCell(World w, int x, int y, ExplosionPart part) {
+			if (x >= 0 && x < w.width && y >= 0 && y < w.height) {
+				w.map[y][x].explode(this); 
+				if (w.map[y][x].isExploading)
+					renderingModel.setExplosion(x, y, part);
 			}
 		}
 		
-		public void unexplode(World w) {			
-			w.map[y][x].unexplode();		
-			if (y > 0)
-				w.map[y - 1][x].unexplode();
-			if (y < w.height-1)
-				w.map[y + 1][x].unexplode();
-			if (x > 0)
-				w.map[y][x - 1].unexplode();
-			if (x < w.width-1)
-				w.map[y][x + 1].unexplode();	
+		//TODO: разные модели взрыва - ограничение по расстоянию или по площади, направление распространения (за угол)
+		public void perform(World w) {	
+			explodeCell(w, x, y, ExplosionPart.CENTER);
+			
+			explodeCell(w, x, y+1, ExplosionPart.PASS_V);
+			explodeCell(w, x, y+2, ExplosionPart.END_U);
+			
+			explodeCell(w, x, y-1, ExplosionPart.PASS_V);
+			explodeCell(w, x, y-2, ExplosionPart.END_D);
+			
+			explodeCell(w, x-1, y, ExplosionPart.PASS_H);
+			explodeCell(w, x-2, y, ExplosionPart.END_L);
+			
+			explodeCell(w, x+1, y, ExplosionPart.PASS_H);
+			explodeCell(w, x+2, y, ExplosionPart.END_R);
+		}
+		
+		private void unexplodeCell(World w, int x, int y) {
+			if (x >= 0 && x < w.width && y >= 0 && y < w.height) {
+				w.map[y][x].unexplode(); 
+			}
+		}
+		
+		public void unexplode(World w) {
+			unexplodeCell(w, x, y);
+			unexplodeCell(w, x, y+1);
+			unexplodeCell(w, x, y+2);
+			unexplodeCell(w, x, y-1);
+			unexplodeCell(w, x, y-2);
+			unexplodeCell(w, x+1, y);
+			unexplodeCell(w, x+2, y);
+			unexplodeCell(w, x-1, y);
+			unexplodeCell(w, x-2, y);	
+		}
+		
+		private void cleanupCell(World w, int x, int y) {
+			if (x >= 0 && x < w.width && y >= 0 && y < w.height) {
+				w.map[y][x].cleanup(); 
+			}
 		}
 		
 		public void cleanup(World w) {		
-			w.map[y][x].cleanup();		
-			if (y > 0)
-				w.map[y - 1][x].cleanup();
-			if (y < w.height-1)
-				w.map[y + 1][x].cleanup();
-			if (x > 0)
-				w.map[y][x - 1].cleanup();
-			if (x < w.width-1)
-				w.map[y][x + 1].cleanup();			
+			cleanupCell(w, x, y);
+			cleanupCell(w, x, y+1);
+			cleanupCell(w, x, y+2);
+			cleanupCell(w, x, y-1);
+			cleanupCell(w, x, y-2);
+			cleanupCell(w, x+1, y);
+			cleanupCell(w, x+2, y);
+			cleanupCell(w, x-1, y);
+			cleanupCell(w, x-2, y);		
 		}
 		
 		//TODO: общий тип временных объектов
@@ -494,9 +505,8 @@ public class World implements WorldInput {
 	private boolean putBombFlag = false;
 	
 	private void kill() {
-		if (protagonist.alive) {
+		if (protagonist.alive && protagonist.kill()) {
 			soundPlayer.playDeath();
-			protagonist.kill();
 			renderingModel.kill();	
 			respawnTimeLeft = respawnTime;
 		}

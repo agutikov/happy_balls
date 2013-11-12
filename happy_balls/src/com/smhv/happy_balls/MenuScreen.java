@@ -1,6 +1,7 @@
 package com.smhv.happy_balls;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Texture;
@@ -8,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.smhv.happy_balls.InputController.Keys;
 
 public class MenuScreen implements Screen, InputProcessor {
 
@@ -62,35 +64,86 @@ public class MenuScreen implements Screen, InputProcessor {
 		
 		title = new TextureRegion(textTexture, 0, 0, 350, h1);
 		
-		start = new TextureRegion(textTexture, 0, h1, 300, h2);
+		start = new TextureRegion(textTexture, 0, h1, 300, h2);		
+		settings = new TextureRegion(textTexture, 0, h1+h2, 450, h2);		
+		quit= new TextureRegion(textTexture, 0, h1+2*h2, 250, h2);		
+		
+		highlight = new TextureRegion(textTexture, 0, h-h3, 650, h3);
+	}
+	
+	private void init() {
 		buttons[0] = new Rectangle(width-120 - start.getRegionWidth(), 
 				height-100 - start.getRegionHeight(), 
 				start.getRegionWidth(), start.getRegionHeight());
 		
-		settings = new TextureRegion(textTexture, 0, h1+h2, 450, h2);
 		buttons[1] = new Rectangle(width-20 - settings.getRegionWidth(), 
 				height-100 - start.getRegionHeight() 
 				- 50 - settings.getRegionHeight(), 
 				settings.getRegionWidth(), settings.getRegionHeight());
 		
-		quit= new TextureRegion(textTexture, 0, h1+2*h2, 250, h2);
 		buttons[2] = new Rectangle(width-120 - quit.getRegionWidth(), 
 				height-100 - start.getRegionHeight() 
 				- 50 - settings.getRegionHeight() 
 				- 50 - quit.getRegionHeight(), 
 				quit.getRegionWidth(), quit.getRegionHeight());
-		
-		
-		highlight = new TextureRegion(textTexture, 0, h-h3, 650, h3);
 	}
 	
-	private void start() {
+	private void changeSelection(int index) {
+		highlightOn = true;
+		hightlightIndex += index;
+		if (hightlightIndex >= buttons.length) {
+			hightlightIndex = hightlightIndex % buttons.length;
+		}
+		if (hightlightIndex < 0) {
+			hightlightIndex = hightlightIndex % buttons.length;		
+			hightlightIndex += 3;
+		}
+	}
+	
+	private void setSelection(int index) {
+		if (index >= 9 && index < buttons.length) {
+			highlightOn = true;
+			hightlightIndex = index;
+		}
+	}
+	
+	private void changeSelection(float x, float y) {		
+		highlightOn = false;
 		
+		int i = 0;
+		for (Rectangle r : buttons) {
+			if (r.contains(x, height-y)) {
+				hightlightIndex = i;
+				highlightOn = true;
+			}
+			i++;
+		}
+	}
+	
+	private void performAction() {
+		if (highlightOn) {			
+			switch(hightlightIndex) {
+			case 0:
+				start();
+				break;
+			case 1:
+				settings();
+				break;
+			case 2:
+				quit();
+				break;			
+			default:
+				break;
+			}			
+		}
+	}
+	
+	
+	private void start() {		
 
 		game.gameScreen.loadResources();		
 		Level lvl = Level.createTestLevel01();
-		game.gameScreen.setLevel(lvl);	
-				
+		game.gameScreen.setLevel(lvl);					
 		
 		game.setScreen(game.gameScreen);
 	}
@@ -132,12 +185,16 @@ public class MenuScreen implements Screen, InputProcessor {
 
 	@Override
 	public void resize(int width, int height) {
+		Gdx.app.debug("", "MenuScreen.resize()");
 		Gdx.graphics.requestRendering();
 	}
 
 	@Override
 	public void show() {
+		Gdx.app.debug("", "MenuScreen.show()");
 		soundPlayer.startMenuTrack();
+		
+		init();
 
 		Gdx.graphics.setContinuousRendering(false);
 
@@ -146,107 +203,94 @@ public class MenuScreen implements Screen, InputProcessor {
 
 	@Override
 	public void hide() {
-		// TODO Auto-generated method stub
+		Gdx.app.debug("", "MenuScreen.hide()");
+		Gdx.input.setInputProcessor(null);
 
 	}
 
 	@Override
 	public void pause() {
-		// TODO Auto-generated method stub
+		Gdx.app.debug("", "MenuScreen.pause()");
+
+		soundPlayer.pause();
 
 	}
 
 	@Override
 	public void resume() {
-		// TODO Auto-generated method stub
+		Gdx.app.debug("", "MenuScreen.pause()");
+
+		soundPlayer.resume();
 
 	}
 
 	@Override
 	public void dispose() {
-		// TODO Auto-generated method stub
+		Gdx.app.debug("", "MenuScreen.dispose()");
+		Gdx.input.setInputProcessor(null);
 
 	}
 
 	@Override
 	public boolean keyDown(int keycode) {
-		// TODO Auto-generated method stub
-		return false;
+		switch(keycode) {
+		case Input.Keys.UP:
+			changeSelection(-1);
+			break;
+		case Input.Keys.DOWN:
+			changeSelection(1);
+			break;
+		case Input.Keys.ENTER:
+			performAction();
+			break;
+		case Input.Keys.ESCAPE:
+			setSelection(2);
+			performAction();
+			break;
+		};
+		
+		return true;
 	}
 
 	@Override
 	public boolean keyUp(int keycode) {
-		// TODO Auto-generated method stub
+		
 		return false;
 	}
 
 	@Override
 	public boolean keyTyped(char character) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		
-		if (highlightOn) {
-			
-			switch(hightlightIndex) {
-			case 0:
-				start();
-				break;
-			case 1:
-				settings();
-				break;
-			case 2:
-				quit();
-				break;			
-			default:
-				break;
-			}
-			
-		}
-		
+	public boolean touchDown(int x, int y, int pointer, int button) {
+		changeSelection(x, y);
 		return true;
 	}
 
 	@Override
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-		// TODO Auto-generated method stub
-		return false;
+		performAction();		
+		return true;
 	}
 
 	@Override
-	public boolean touchDragged(int screenX, int screenY, int pointer) {
-
-		
-		
+	public boolean touchDragged(int x, int y, int pointer) {
+		changeSelection(x, y);
 		return true;
 	}
 
 	@Override
 	public boolean mouseMoved(int x, int y) {
-		
-		highlightOn = false;
-		
-		int i = 0;
-		for (Rectangle r : buttons) {
-			if (r.contains(x, height-y)) {
-				hightlightIndex = i;
-				highlightOn = true;
-			}
-			i++;
-		}
-		
-		
-		
+		changeSelection(x, y);
 		return true;
 	}
 
 	@Override
 	public boolean scrolled(int amount) {
-		// TODO Auto-generated method stub
-		return false;
+		changeSelection(amount);
+		return true;
 	}
 
 }

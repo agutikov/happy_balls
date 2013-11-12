@@ -1,4 +1,4 @@
-package com.smhv.happy_balls;
+package com.smhv.happy_balls.render;
 
 /*
  * TODO: engine settings:
@@ -19,7 +19,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.TimeUtils;
-import com.smhv.happy_balls.WorldRenderingModel.RenderingCell;
+import com.smhv.happy_balls.render.WorldRenderingModel.RenderingCell;
 
 public class WorldRenderer {
 

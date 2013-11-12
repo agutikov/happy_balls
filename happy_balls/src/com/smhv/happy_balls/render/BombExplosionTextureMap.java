@@ -1,4 +1,4 @@
-package com.smhv.happy_balls;
+package com.smhv.happy_balls.render;
 
 import java.util.EnumMap;
 import java.util.Map;

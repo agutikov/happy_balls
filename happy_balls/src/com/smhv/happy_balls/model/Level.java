@@ -1,11 +1,10 @@
-package com.smhv.happy_balls;
+package com.smhv.happy_balls.model;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
 import com.badlogic.gdx.utils.Array;
-import com.smhv.happy_balls.model.FixedObject;
 import com.smhv.happy_balls.model.FixedObject.Orientation;
 
 

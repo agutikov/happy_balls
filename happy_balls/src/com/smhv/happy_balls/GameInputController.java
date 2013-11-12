@@ -10,17 +10,17 @@ import com.smhv.happy_balls.model.WorldInput.ControlDirection;
 
 import com.badlogic.gdx.InputProcessor;
 
-public class InputController implements InputProcessor {
+public class GameInputController implements InputProcessor {
 	
 	WorldInput world;
 	
-	GameScreen screen;
+	BGameInput gameInput;
 	
 	enum Keys {
 		LEFT, RIGHT, UP, DOWN
 	}	
 	
-	static Map<Keys, Boolean> keys = new HashMap<InputController.Keys, Boolean>();
+	static Map<Keys, Boolean> keys = new HashMap<GameInputController.Keys, Boolean>();
 	static {
 		keys.put(Keys.LEFT, false);
 		keys.put(Keys.RIGHT, false);
@@ -28,9 +28,9 @@ public class InputController implements InputProcessor {
 		keys.put(Keys.DOWN, false);
 	};
 
-	public InputController(WorldInput controlledWorld, GameScreen screen) {
+	public GameInputController(WorldInput controlledWorld, BGameInput gameInput) {
 		world = controlledWorld;
-		this.screen = screen;
+		this.gameInput = gameInput;
 	}
 	
 
@@ -56,7 +56,7 @@ public class InputController implements InputProcessor {
 			break;
 
 		case Input.Keys.ESCAPE:
-			screen.gotoMainMenu();
+			gameInput.quitToMenu();
 			break;
 		};
 		

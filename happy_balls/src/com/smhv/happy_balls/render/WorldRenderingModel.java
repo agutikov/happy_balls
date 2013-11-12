@@ -1,4 +1,4 @@
-package com.smhv.happy_balls;
+package com.smhv.happy_balls.render;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,9 +10,9 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
-import com.smhv.happy_balls.RenderFreeObject.FreeObjectState;
 import com.smhv.happy_balls.model.FixedObject;
 import com.smhv.happy_balls.model.FreeObject.Direction;
+import com.smhv.happy_balls.render.RenderFreeObject.FreeObjectState;
 
 
 public class WorldRenderingModel {

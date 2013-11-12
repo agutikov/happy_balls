@@ -5,6 +5,8 @@ import com.badlogic.gdx.Screen;
 
 
 import com.smhv.happy_balls.model.*;
+import com.smhv.happy_balls.render.WorldRenderer;
+import com.smhv.happy_balls.render.WorldRenderingModel;
 
 
 public class GameScreen implements Screen {
@@ -12,7 +14,7 @@ public class GameScreen implements Screen {
 	private World 			world;
 	private WorldRenderingModel 	model;
 	private WorldRenderer 	renderer;
-	private InputController	input;
+	private GameInputController	input;
 	
 	private SoundPlayer soundPlayer;
 	
@@ -32,15 +34,9 @@ public class GameScreen implements Screen {
 		model = new WorldRenderingModel();
 		world = new World(model, sp);
 		renderer = new WorldRenderer(model);
-		input = new InputController(world, this);
+		input = new GameInputController(world, game);
 		
 		model.renderer = renderer;
-	}
-	
-	public void gotoMainMenu() {
-		game.pause();
-		
-		game.setScreen(game.menuScreen);
 	}
 	
 	/*
@@ -97,6 +93,8 @@ public class GameScreen implements Screen {
 		
 		Gdx.input.setInputProcessor(null);
 
+		soundPlayer.stopGameTrack();
+		
 		running = false;
 	}
 

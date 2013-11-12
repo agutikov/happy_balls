@@ -9,7 +9,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.smhv.happy_balls.InputController.Keys;
+import com.smhv.happy_balls.GameInputController.Keys;
 
 public class MenuScreen implements Screen, InputProcessor {
 
@@ -140,12 +140,7 @@ public class MenuScreen implements Screen, InputProcessor {
 	
 	
 	private void start() {		
-
-		game.gameScreen.loadResources();		
-		Level lvl = Level.createTestLevel01();
-		game.gameScreen.setLevel(lvl);					
-		
-		game.setScreen(game.gameScreen);
+		game.startGame();
 	}
 	
 	private void settings() {

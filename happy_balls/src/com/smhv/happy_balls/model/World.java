@@ -10,12 +10,11 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
-import com.smhv.happy_balls.Level;
 import com.smhv.happy_balls.SoundPlayer;
-import com.smhv.happy_balls.Level.BoxDescription;
-import com.smhv.happy_balls.Level.ObjectDescription;
-import com.smhv.happy_balls.WorldRenderingModel;
-import com.smhv.happy_balls.WorldRenderingModel.ExplosionPart;
+import com.smhv.happy_balls.model.Level.BoxDescription;
+import com.smhv.happy_balls.model.Level.ObjectDescription;
+import com.smhv.happy_balls.render.WorldRenderingModel;
+import com.smhv.happy_balls.render.WorldRenderingModel.ExplosionPart;
 
 //TODO: пользоваться полиморфизмом - чтобы пихать объекты в списки
 

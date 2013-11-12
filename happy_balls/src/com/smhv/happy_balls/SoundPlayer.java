@@ -33,7 +33,7 @@ public class SoundPlayer {
 	}
 	
 	
-	public void init () {
+	public void loadResources () {
 		
 		for (Entry<String, String> entry : soundFilenames.entrySet()) {
 			Sound sound = Gdx.audio.newSound(Gdx.files.internal("sound/" + entry.getKey()));

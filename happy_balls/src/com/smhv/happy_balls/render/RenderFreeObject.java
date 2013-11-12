@@ -1,4 +1,4 @@
-package com.smhv.happy_balls;
+package com.smhv.happy_balls.render;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Animation;

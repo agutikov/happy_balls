@@ -16,8 +16,22 @@ import com.smhv.happy_balls.render.RenderFreeObject.FreeObjectState;
 
 
 public class WorldRenderingModel {
+	
+	private Map<String, String> textureMap;
+	Texture textureGlobal;
+	public  Map<String, GameTexture> textureGlobalRegions = new HashMap<String, GameTexture>();
+	public FreeObjectTextureMap protagonistTextureMap;
+	public FreeObjectTextureMap enemyTextureMap;
+	public BoxTextureMap boxTextureMap;
+	public BombExplosionTextureMap bombExplosionTextureMap;
 
 	public WorldRenderer renderer;
+	
+	public RenderingCell[][] renderingMap;
+	public RenderFreeObject protagonistRenderObject;		
+	public Map<Integer, RenderFreeObject> enemies;
+	ArrayList <RenderBoxObject> boxes;
+	ArrayList <RenderBoxObject> exploadedBoxes ;
 		
 	/*
 	 * Convert orientation to degrees.
@@ -52,10 +66,7 @@ public class WorldRenderingModel {
 			texture = t;
 			rot = r;
 		}
-	}
-	
-
-	
+	}	
 	
 	public class RenderingCell {
 		boolean explosion;
@@ -66,11 +77,7 @@ public class WorldRenderingModel {
 		
 		public RenderBombObject bomb;
 		public RenderBoxObject box;
-	}
-	
-	private Map<String, String> textureMap;
-	
-	public RenderingCell[][] renderingMap;
+	}	
 	
 	public void init(int width, int height, Map<String, String> objTextureMap) {
 		renderingMap = new RenderingCell[height][width];
@@ -82,10 +89,21 @@ public class WorldRenderingModel {
 		}
 		
 		textureMap = objTextureMap;
+		
+		enemies = new HashMap<Integer, RenderFreeObject>();		
+		protagonistRenderObject = new RenderFreeObject(protagonistTextureMap);
+		boxes = new ArrayList <RenderBoxObject> ();
+		exploadedBoxes = new ArrayList <RenderBoxObject> ();
 	}
 	
-	ArrayList <RenderBoxObject> boxes = new ArrayList <RenderBoxObject> ();
-	ArrayList <RenderBoxObject> exploadedBoxes = new ArrayList <RenderBoxObject> ();
+	public void cleanup() {
+		renderingMap = null;
+		textureMap = null;
+		enemies = null;
+		protagonistRenderObject = null;
+		boxes = null;
+		exploadedBoxes = null;
+	}
 	
 	public void setFixedTop(String objName, int x, int y, FixedObject.Orientation orient) {
 		if (objName == "bomb") {
@@ -130,16 +148,7 @@ public class WorldRenderingModel {
 		renderingMap[y][x].box.explode();
 	}
 	//TODO: перейти на использование спрайтов
-	//TODO: SpriteCache
-
-	public FreeObjectTextureMap protagonistTextureMap;
-	public FreeObjectTextureMap enemyTextureMap;
-	public BoxTextureMap boxTextureMap;
-	public BombExplosionTextureMap bombExplosionTextureMap;
-	
-	
-	public RenderFreeObject protagonistRenderObject;		
-	public Map<Integer, RenderFreeObject> enemies;
+	//TODO: SpriteCache	
 	
 	public void kill() {
 		protagonistRenderObject.kill();
@@ -234,12 +243,9 @@ public class WorldRenderingModel {
 	}
 	
 	public WorldRenderingModel() {				
-		enemies = new HashMap<Integer, RenderFreeObject>();
 	}
 	
 	
-	Texture textureGlobal;
-	public  Map<String, GameTexture> textureGlobalRegions = new HashMap<String, GameTexture>();
 
 	
 	/*
@@ -262,7 +268,6 @@ public class WorldRenderingModel {
 		
 
 		protagonistTextureMap = new FreeObjectTextureMap("graphics/player_sprite.png");
-		protagonistRenderObject = new RenderFreeObject(protagonistTextureMap);
 	
 		enemyTextureMap = new FreeObjectTextureMap("graphics/enemy_sprite.png");
 		

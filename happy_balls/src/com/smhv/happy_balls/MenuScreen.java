@@ -10,10 +10,9 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.smhv.happy_balls.GameInputController.Keys;
+import com.smhv.happy_balls.sound.SoundPlayer;
 
-public class MenuScreen implements Screen, InputProcessor {
-
-	BGame game;
+public class MenuScreen extends BScreen implements InputProcessor {
 	
 	Texture backgroundTexture;
 	Texture textTexture;
@@ -32,11 +31,9 @@ public class MenuScreen implements Screen, InputProcessor {
 	
 	SpriteBatch spriteBatch;
 
-	private SoundPlayer soundPlayer;
 	
-	public MenuScreen(BGame game, SoundPlayer sp) {
-		this.game = game;
-		soundPlayer = sp;
+	public MenuScreen() {
+		continuousRendering = false;
 		spriteBatch = new SpriteBatch();
 	}
 	
@@ -69,9 +66,8 @@ public class MenuScreen implements Screen, InputProcessor {
 		quit= new TextureRegion(textTexture, 0, h1+2*h2, 250, h2);		
 		
 		highlight = new TextureRegion(textTexture, 0, h-h3, 650, h3);
-	}
-	
-	private void init() {
+		
+
 		buttons[0] = new Rectangle(width-120 - start.getRegionWidth(), 
 				height-100 - start.getRegionHeight(), 
 				start.getRegionWidth(), start.getRegionHeight());
@@ -86,7 +82,7 @@ public class MenuScreen implements Screen, InputProcessor {
 				- 50 - settings.getRegionHeight() 
 				- 50 - quit.getRegionHeight(), 
 				quit.getRegionWidth(), quit.getRegionHeight());
-	}
+	}	
 	
 	private void changeSelection(int index) {
 		highlightOn = true;
@@ -140,7 +136,7 @@ public class MenuScreen implements Screen, InputProcessor {
 	
 	
 	private void start() {		
-		game.startGame();
+		gameInput.startNewGame();
 	}
 	
 	private void settings() {
@@ -148,7 +144,6 @@ public class MenuScreen implements Screen, InputProcessor {
 	}
 	
 	private void quit() {
-		game.dispose();
 		Gdx.app.exit();
 	}
 	
@@ -180,50 +175,7 @@ public class MenuScreen implements Screen, InputProcessor {
 
 	@Override
 	public void resize(int width, int height) {
-		Gdx.app.debug("", "MenuScreen.resize()");
 		Gdx.graphics.requestRendering();
-	}
-
-	@Override
-	public void show() {
-		Gdx.app.debug("", "MenuScreen.show()");
-		soundPlayer.startMenuTrack();
-		
-		init();
-
-		Gdx.graphics.setContinuousRendering(false);
-
-		Gdx.input.setInputProcessor(this);
-	}
-
-	@Override
-	public void hide() {
-		Gdx.app.debug("", "MenuScreen.hide()");
-		Gdx.input.setInputProcessor(null);
-
-	}
-
-	@Override
-	public void pause() {
-		Gdx.app.debug("", "MenuScreen.pause()");
-
-		soundPlayer.pause();
-
-	}
-
-	@Override
-	public void resume() {
-		Gdx.app.debug("", "MenuScreen.pause()");
-
-		soundPlayer.resume();
-
-	}
-
-	@Override
-	public void dispose() {
-		Gdx.app.debug("", "MenuScreen.dispose()");
-		Gdx.input.setInputProcessor(null);
-
 	}
 
 	@Override
@@ -286,6 +238,16 @@ public class MenuScreen implements Screen, InputProcessor {
 	public boolean scrolled(int amount) {
 		changeSelection(amount);
 		return true;
+	}
+
+	@Override
+	public String getThemeName() {
+		return "menu";
+	}
+
+	@Override
+	public InputProcessor getInputProcessor() {
+		return this;
 	}
 
 }

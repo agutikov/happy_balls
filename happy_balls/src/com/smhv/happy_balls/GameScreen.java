@@ -1,42 +1,40 @@
 package com.smhv.happy_balls;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 
 
+import com.smhv.happy_balls.level.Level;
 import com.smhv.happy_balls.model.*;
 import com.smhv.happy_balls.render.WorldRenderer;
 import com.smhv.happy_balls.render.WorldRenderingModel;
+import com.smhv.happy_balls.sound.SoundPlayer;
 
 
-public class GameScreen implements Screen {
+public class GameScreen extends BScreen {
 
 	private World 			world;
 	private WorldRenderingModel 	model;
 	private WorldRenderer 	renderer;
 	private GameInputController	input;
-	
-	private SoundPlayer soundPlayer;
-	
-	private boolean running = false;
 
-	BGame game;
+	BGameInput gameInput;
 
 	/*
 	 * Initialize game engine, no real game data loaded.
 	 */	
-	public GameScreen(BGame game, SoundPlayer sp) {
-		
-		this.game = game;
-		
+	public GameScreen() {	
+		continuousRendering = true;
+		renderer = new WorldRenderer();
+	}
+	
+	public void bindGame(BGameInput gameInput) {
+		this.gameInput = gameInput;
+	}
+	
+	public void bindSoundPlayer(SoundPlayer sp) {
 		soundPlayer = sp;
-		
-		model = new WorldRenderingModel();
-		world = new World(model, sp);
-		renderer = new WorldRenderer(model);
-		input = new GameInputController(world, game);
-		
-		model.renderer = renderer;
 	}
 	
 	/*
@@ -45,25 +43,44 @@ public class GameScreen implements Screen {
 	 * For now is not necessary to load data during playing.
 	 */
 	public void loadResources() {
+		//TODO: разделить ресурсы и данные конкретного запуска игры (модели)
+		model = new WorldRenderingModel();	
+		model.renderer = renderer;
+		renderer.bindRenderingModel(model);
 		model.loadTextures();
 	}
 	
-	/*
-	 * Level should be already set before calling setScreen().
-	 */
-	public void setLevel(Level lvl) {
-		world.initLevel(lvl);
+	public void init(Level lvl) {
+		world = new World(model, soundPlayer);
+		input = new GameInputController(world, gameInput);	
+		
+		//TODO: надо всётаки разделять инициализацию уровня и инициализацию и очистку ресурсов игрового движка
+
+		/*
+		 * TODO: а вообще надо разделять долго создаваемые данные (загружаемые) 
+		 * и временные (данные игрового движка для текущей игры)
+		 * и тогда можно создавать скрины каждый раз
+		 */
+		
+		
+		world.init(lvl); //тут вызывается model.init()
 	}
+	
+	public void cleanup() {
+		model.cleanup();
+		world = null;
+		input = null;
+	}
+
+	
 
 	@Override
 	public void render(float delta) {	
 		//TODO: deWiTTERS game loop
 		
-		if (running) {
-			input.processInput();		
-			world.update(delta);			
-			renderer.render();
-		}
+		input.processInput();		
+		world.update(delta);			
+		renderer.render();
 	}
 
 	@Override
@@ -74,56 +91,13 @@ public class GameScreen implements Screen {
 	}
 
 	@Override
-	public void show() {	
-		Gdx.app.debug("", "GameScreen.show()");
-		
-		Gdx.input.setInputProcessor(input);
-
-		Gdx.graphics.setContinuousRendering(true);
-		
-		soundPlayer.startGameTrack();
-		
-		running = true;
-
+	public String getThemeName() {
+		return "menu";
 	}
 
 	@Override
-	public void hide() {
-		Gdx.app.debug("", "GameScreen.hide()");
-		
-		Gdx.input.setInputProcessor(null);
-
-		soundPlayer.stopGameTrack();
-		
-		running = false;
-	}
-
-	@Override
-	public void pause() {
-		Gdx.app.debug("", "GameScreen.pause()");
-
-		soundPlayer.pause();
-		
-
-		running = false;
-	}
-
-	@Override
-	public void resume() {
-		Gdx.app.debug("", "GameScreen.resume()");
-
-
-		soundPlayer.resume();
-		
-		running = true;
-	}
-
-	@Override
-	public void dispose() {
-		
-		
-		Gdx.input.setInputProcessor(null);
-
+	public InputProcessor getInputProcessor() {
+		return input;
 	}
 
 	

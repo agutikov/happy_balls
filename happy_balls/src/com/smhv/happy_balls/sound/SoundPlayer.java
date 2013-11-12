@@ -1,4 +1,4 @@
-package com.smhv.happy_balls;
+package com.smhv.happy_balls.sound;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,7 +9,8 @@ import com.badlogic.gdx.audio.Sound;
 
 public class SoundPlayer {
 
-	float volume = 0.1f;
+	float mainThemeVolume = 0.1f;
+	float effectsVolume = 0.3f;
 	
 	private static Map <String, String> soundFilenames = new HashMap <String, String>();
 	
@@ -25,6 +26,7 @@ public class SoundPlayer {
 	
 	private Map <String, Sound> sounds;
 	
+	private Sound currentTheme;
 	
 	
 	public SoundPlayer() {
@@ -53,22 +55,10 @@ public class SoundPlayer {
 		}
 	}
 	
-	
-	public void startGameTrack() {
-		sounds.get("menu").loop(volume);	
-	}
-	public void stopGameTrack() {
-		sounds.get("menu").stop();	
-	}
-	
-	public void startMenuTrack() {	
-	}	
-	public void stopMenuTrack() {	
-	}
-	
+
 	public void playExplosion() {
 
-		sounds.get("explosion").play(volume);	
+		sounds.get("explosion").play(effectsVolume);	
 	}
 	
 	public void playSetBomb() {
@@ -77,17 +67,17 @@ public class SoundPlayer {
 	
 	public void playMurder() {
 
-		sounds.get("murder").play(volume);	
+		sounds.get("murder").play(effectsVolume);	
 	}
 	
 	public void playSpawn() {
 
-		sounds.get("spawn").play(volume);
+		sounds.get("spawn").play(effectsVolume);
 	}
 	
 	public void playDeath() {
 
-		sounds.get("death").play(volume);
+		sounds.get("death").play(effectsVolume);
 		
 	}
 	
@@ -98,7 +88,24 @@ public class SoundPlayer {
 	
 	public void playGameWin() {
 
-		sounds.get("win").play(volume);
+		sounds.get("win").play(effectsVolume);
+	}
+
+
+	public void startTheme(String themeName) {
+		if (currentTheme != null) {
+			currentTheme.stop();
+		}
+		currentTheme = sounds.get(themeName);
+		currentTheme.loop(mainThemeVolume);		
+	}
+
+
+	public void stopTheme() {
+		if (currentTheme != null) {
+			currentTheme.stop();
+			currentTheme = null;
+		}		
 	}
 	
 

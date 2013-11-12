@@ -31,6 +31,10 @@ public class WorldRenderer {
 	long lastTime;
 	
 	private WorldRenderingModel world;
+	
+	public void bindRenderingModel(WorldRenderingModel model) {
+		world = model;
+	}
 	// TODO: рендерить только то что visible
 	// TODO: нормально рисовать текстуры с альфаканалом - без усиления контрастности со временем
 
@@ -50,8 +54,7 @@ public class WorldRenderer {
     private static final float CAMERA_WIDTH  = 840f;
     private static final float CAMERA_HEIGHT = 480f;
     
-	public WorldRenderer(WorldRenderingModel model) {
-		this.world = model;		
+	public WorldRenderer() {	
 		spriteBatch = new SpriteBatch();		
 		camera = new OrthographicCamera(CAMERA_WIDTH, CAMERA_HEIGHT);
 		renderer = new ShapeRenderer();

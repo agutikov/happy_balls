@@ -25,12 +25,8 @@ public class Enemy extends FreeObject {
 		
 		counter++;
 		index = counter;
-		Gdx.app.debug("new enemy", "" + index);
 	}
 	
-	protected void finalize() {
-		Gdx.app.debug("killed enemy", "" + index);
-	}
 	
 	private float goingTime = 1.0f;
 	private float timeBeforeRotate = 0;

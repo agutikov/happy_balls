@@ -3,30 +3,31 @@ package com.smhv.happy_balls;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Game;
-import com.smhv.happy_balls.model.Level;
+import com.smhv.happy_balls.level.Level;
+import com.smhv.happy_balls.sound.SoundPlayer;
 
 public class BGame extends Game implements BGameInput {
 
 
-	
-
 	private GameScreen gameScreen;
 	private MenuScreen menuScreen;
 	
+	private SoundPlayer soundPlayer;	
+
+	Level levels[] = new Level[3];
 	
-	public void startGame () {
-		gameScreen.loadResources();		
-		Level lvl = Level.createTestLevel01();
-		gameScreen.setLevel(lvl);					
+	public void startNewGame () {	
+		gameScreen.init(levels[0]);		
 		
 		setScreen(gameScreen);
 	}
 	
-	public void quitToMenu () {		
+	public void quitToMenu () {	
+		gameScreen.cleanup();
+		
 		setScreen(menuScreen);
 	}
 	
-	private SoundPlayer soundPlayer;
 	
 	public BGame() {
 	}
@@ -35,54 +36,27 @@ public class BGame extends Game implements BGameInput {
 	@Override
 	public void create() {
 
-		Gdx.app.setLogLevel(Application.LOG_DEBUG);
-
+		Gdx.app.setLogLevel(Application.LOG_DEBUG);		
 
 		soundPlayer = new SoundPlayer();
-		soundPlayer.loadResources();
+		gameScreen = new GameScreen();
+		menuScreen = new MenuScreen();
 		
-		gameScreen = new GameScreen(this, soundPlayer);
-		menuScreen = new MenuScreen(this, soundPlayer);
+		gameScreen.bindGame(this);
+		gameScreen.bindSoundPlayer(soundPlayer);
 		
+		menuScreen.bindGame(this);
+		menuScreen.bindSoundPlayer(soundPlayer);		
 
+		levels[0] = Level.createTestLevel01();
+		levels[1] = Level.createTestLevel02();
+		levels[2] = Level.createTestLevel03();
+		
+		soundPlayer.loadResources();
 		menuScreen.loadResources();
+		gameScreen.loadResources();	
 		
 		setScreen(menuScreen);
 	}
-
-	@Override
-	public void resize(int width, int height) {
-		super.resize(width, height);
-
-	}
-
-	@Override
-	public void render() {
-		super.render();
-		
-	}
-
-	@Override
-	public void pause() {
-		super.pause();
-		
-
-	}
-
-	@Override
-	public void resume() {
-		super.resume();
-		
-
-	}
-
-	@Override
-	public void dispose() {
-		super.dispose();
-		
-
-	}
-	
-
 
 }

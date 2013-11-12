@@ -10,11 +10,12 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
-import com.smhv.happy_balls.SoundPlayer;
-import com.smhv.happy_balls.model.Level.BoxDescription;
-import com.smhv.happy_balls.model.Level.ObjectDescription;
+import com.smhv.happy_balls.level.Level;
+import com.smhv.happy_balls.level.Level.BoxDescription;
+import com.smhv.happy_balls.level.Level.ObjectDescription;
 import com.smhv.happy_balls.render.WorldRenderingModel;
 import com.smhv.happy_balls.render.WorldRenderingModel.ExplosionPart;
+import com.smhv.happy_balls.sound.SoundPlayer;
 
 //TODO: пользоваться полиморфизмом - чтобы пихать объекты в списки
 
@@ -286,8 +287,6 @@ public class World implements WorldInput {
 	private void addBomb(int x, int y) {
 		if (map[y][x].bomb == null) {
 			
-			Gdx.app.debug("bomb", x + ", " + y);
-			
 			soundPlayer.playSetBomb();
 			Bomb b = new Bomb();
 			map[y][x].setBomb(b);
@@ -300,7 +299,7 @@ public class World implements WorldInput {
 		bombs.remove(b);
 	}
 	
-	public void initLevel(Level lvl) {
+	public void init(Level lvl) {
 			width = lvl.mapWidth;
 			height = lvl.mapHeight;
 		

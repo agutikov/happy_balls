@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.smhv.happy_balls.GameInputController.Keys;
+import com.smhv.happy_balls.render.BRenderer;
 import com.smhv.happy_balls.sound.SoundPlayer;
 
 public class MenuScreen extends BScreen implements InputProcessor {
@@ -24,17 +25,61 @@ public class MenuScreen extends BScreen implements InputProcessor {
 	TextureRegion quit;
 	TextureRegion highlight;
 	
+	MenuRenderer renderer;
+	
+	public class MenuRenderer extends BRenderer {
+
+		MenuScreen screen;
+		
+		MenuRenderer (MenuScreen screen) {
+			super();
+			
+			this.screen = screen;
+			
+			scaleMode = ScaleMode.NON_SCALE_FIXED_VIEWPORT;
+			
+			camera.position.set(CAMERA_WIDTH / 2, CAMERA_HEIGHT / 2, 0);
+			camera.update();
+		}
+		
+		public void render() {
+			prepareRender();
+			
+			spriteBatch.begin();
+			
+			spriteBatch.disableBlending();
+			
+			spriteBatch.draw(background, 0, 0);
+
+			spriteBatch.enableBlending();
+			
+			if (highlightOn) {
+				spriteBatch.draw(highlight, buttons[hightlightIndex].x - 150, 
+											buttons[hightlightIndex].y - 70);
+			}
+			
+			spriteBatch.draw(title, 50, height-20 - title.getRegionHeight());
+			
+			spriteBatch.draw(start, buttons[0].x, buttons[0].y);
+			spriteBatch.draw(settings, buttons[1].x, buttons[1].y);		
+			spriteBatch.draw(quit, buttons[2].x, buttons[2].y);
+			
+			
+			spriteBatch.end();				
+		}
+		
+	}
+	
 
 	boolean highlightOn = false;
 	int hightlightIndex = -1;	
 	Rectangle buttons[] = new Rectangle[3];
-	
-	SpriteBatch spriteBatch;
 
 	
 	public MenuScreen() {
 		continuousRendering = false;
-		spriteBatch = new SpriteBatch();
+		
+		renderer = new MenuRenderer(this);
 	}
 	
 	
@@ -106,7 +151,7 @@ public class MenuScreen extends BScreen implements InputProcessor {
 	private void changeSelection(float x, float y) {			
 		int i = 0;
 		for (Rectangle r : buttons) {
-			if (r.contains(x, height-y)) {
+			if (r.contains(x - renderer.viewport.x, height-y - renderer.viewport.y)) {
 				hightlightIndex = i;
 				highlightOn = true;
 			}
@@ -148,33 +193,18 @@ public class MenuScreen extends BScreen implements InputProcessor {
 	
 	@Override
 	public void render(float delta) {
-		//TODO: use scene2d
-	//	Gdx.app.debug("MenuScreen", "render" + renderCounter++);
-		
-
-		spriteBatch.begin();
-		
-		spriteBatch.draw(background, 0, 0);
-		
-		if (highlightOn) {
-			spriteBatch.draw(highlight, buttons[hightlightIndex].x - 150, 
-										buttons[hightlightIndex].y - 70);
-		}
-		
-		spriteBatch.draw(title, 50, height-20 - title.getRegionHeight());
-		
-		spriteBatch.draw(start, buttons[0].x, buttons[0].y);
-		spriteBatch.draw(settings, buttons[1].x, buttons[1].y);		
-		spriteBatch.draw(quit, buttons[2].x, buttons[2].y);
-		
-		
-		spriteBatch.end();		
+		renderer.render();
 	}
 
 
 	@Override
 	public void resize(int width, int height) {
 		Gdx.app.debug("MenuScreen", "resize("+ width +", "+ height +")");
+		
+		this.width = width;
+		this.height = height;
+		
+		renderer.setSize(width, height);
 		Gdx.graphics.requestRendering();
 	}
 

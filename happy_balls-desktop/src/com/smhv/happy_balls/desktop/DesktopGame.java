@@ -15,6 +15,9 @@ public class DesktopGame {
 	      cfg.useGL20 = false;
 	      cfg.width = 840;
 	      cfg.height = 480;
+	      
+	      cfg.fullscreen = false;
+	      cfg.vSyncEnabled = false;
 			
 	      new LwjglApplication(new BGame(), cfg);
 

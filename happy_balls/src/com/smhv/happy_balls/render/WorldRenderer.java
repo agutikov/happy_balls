@@ -55,7 +55,7 @@ public class WorldRenderer {
     private static final float CAMERA_HEIGHT = 480f;
     
     public void loadResources() {		
-		font = new BitmapFont(Gdx.files.local("fonts/font_exocet.fnt"));
+		font = new BitmapFont(Gdx.files.internal("fonts/font_exocet.fnt"));
 		font.setColor(0.0f, 1.0f, 0.0f, 1.0f);    	
     }
     

@@ -97,15 +97,13 @@ public class MenuScreen extends BScreen implements InputProcessor {
 	}
 	
 	private void setSelection(int index) {
-		if (index >= 9 && index < buttons.length) {
+		if (index >= 0 && index < buttons.length) {
 			highlightOn = true;
 			hightlightIndex = index;
 		}
 	}
 	
-	private void changeSelection(float x, float y) {		
-		highlightOn = false;
-		
+	private void changeSelection(float x, float y) {			
 		int i = 0;
 		for (Rectangle r : buttons) {
 			if (r.contains(x, height-y)) {
@@ -140,17 +138,18 @@ public class MenuScreen extends BScreen implements InputProcessor {
 	}
 	
 	private void settings() {
-		
 	}
 	
 	private void quit() {
 		Gdx.app.exit();
 	}
 	
-
+	int renderCounter = 0;
+	
 	@Override
 	public void render(float delta) {
 		//TODO: use scene2d
+	//	Gdx.app.debug("MenuScreen", "render" + renderCounter++);
 		
 
 		spriteBatch.begin();

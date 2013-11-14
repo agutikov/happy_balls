@@ -33,6 +33,12 @@ public class World implements WorldInput {
 	private float respawnTime = 2f;
 	private float respawnTimeLeft;
 	
+
+	private boolean putBombFlag;
+	
+	private boolean win;
+	private boolean gameFinished;
+	
 	public class Position {
 		public int x;
 		public int y;
@@ -273,6 +279,8 @@ public class World implements WorldInput {
 		int index = allEnemies.get(e);
 		allEnemies.remove(e);
 		renderingModel.rmEnemy(index);
+		
+		win = allEnemies.isEmpty();
 	}	
 	private Box addBox(String name, int x, int y, FixedObject.Orientation orientation) {
 		Box b = new Box(name, orientation);
@@ -300,6 +308,11 @@ public class World implements WorldInput {
 	}
 	
 	public void init(Level lvl) {
+
+			putBombFlag = false;
+			win = false;
+			gameFinished = false;
+		
 			width = lvl.mapWidth;
 			height = lvl.mapHeight;
 		
@@ -497,7 +510,6 @@ public class World implements WorldInput {
 		if (pos.y > height-1) pos.y = height-1;
 	}
 	
-	private boolean putBombFlag = false;
 	
 	private void kill() {
 		if (protagonist.alive && protagonist.kill()) {
@@ -541,40 +553,46 @@ public class World implements WorldInput {
 	}
 	
 	public void update(float delta) {
-		protagonist.update(delta);
-		if (protagonist.isUndamagableDisabled())
-			renderingModel.unhighlightProtagonist();
-			
-		posCorrection(protagonist);		
-		{
-			int x = Math.round(protagonist.getPos().x);
-			int y = Math.round(protagonist.getPos().y);	
-			
-			if (map[y][x].isExploading) {
-				kill();
-			}
-		}		
-		renderingModel.moveProtagonistTo(protagonist.getPos().x, protagonist.getPos().y);
-		renderingModel.setProtagonistDirection(protagonist.getDirection());
+		if (!gameFinished) {
+			protagonist.update(delta);
+			if (protagonist.isUndamagableDisabled())
+				renderingModel.unhighlightProtagonist();
+				
+			posCorrection(protagonist);		
+			{
+				int x = Math.round(protagonist.getPos().x);
+				int y = Math.round(protagonist.getPos().y);	
+				
+				if (map[y][x].isExploading) {
+					kill();
+				}
+			}		
+			renderingModel.moveProtagonistTo(protagonist.getPos().x, protagonist.getPos().y);
+			renderingModel.setProtagonistDirection(protagonist.getDirection());
 
-		moveEnemies(delta);
-		enemyInteraction();
-		
-		processBombing();
-		updateBombs(delta);
-		updateExplosions(delta);
-		
-		renderingModel.update(delta);
-		
-		if (!protagonist.isAlive()) {
-			if (respawnTimeLeft > 0) {
-				respawnTimeLeft -= delta;
-			} else {
-				protagonist.resurrection();
-				renderingModel.resurrection();
-				protagonist.setPos(respawn.x, respawn.y);
-				renderingModel.moveProtagonistTo(respawn.x, respawn.y);
-				renderingModel.highlightProtagonist();
+			moveEnemies(delta);
+			enemyInteraction();
+			
+			processBombing();
+			updateBombs(delta);
+			updateExplosions(delta);
+			
+			renderingModel.update(delta);
+			
+			if (!protagonist.isAlive()) {
+				if (respawnTimeLeft > 0) {
+					respawnTimeLeft -= delta;
+				} else {
+					protagonist.resurrection();
+					renderingModel.resurrection();
+					protagonist.setPos(respawn.x, respawn.y);
+					renderingModel.moveProtagonistTo(respawn.x, respawn.y);
+					renderingModel.highlightProtagonist();
+				}
+			}
+			if (win) {
+				soundPlayer.playGameWin();
+				// gameFinished = true;
 			}
 		}
 	}

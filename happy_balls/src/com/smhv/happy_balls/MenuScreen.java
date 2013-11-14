@@ -174,6 +174,7 @@ public class MenuScreen extends BScreen implements InputProcessor {
 
 	@Override
 	public void resize(int width, int height) {
+		Gdx.app.debug("MenuScreen", "resize("+ width +", "+ height +")");
 		Gdx.graphics.requestRendering();
 	}
 

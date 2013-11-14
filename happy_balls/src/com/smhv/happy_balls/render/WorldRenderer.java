@@ -54,15 +54,17 @@ public class WorldRenderer {
     private static final float CAMERA_WIDTH  = 840f;
     private static final float CAMERA_HEIGHT = 480f;
     
+    public void loadResources() {		
+		font = new BitmapFont(Gdx.files.local("fonts/font_exocet.fnt"));
+		font.setColor(0.0f, 1.0f, 0.0f, 1.0f);    	
+    }
+    
 	public WorldRenderer() {	
 		spriteBatch = new SpriteBatch();		
 		camera = new OrthographicCamera(CAMERA_WIDTH, CAMERA_HEIGHT);
 		renderer = new ShapeRenderer();
 		viewport = new Rectangle(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
 		
-		
-		font = new BitmapFont(Gdx.files.local("fonts/font_exocet.fnt"));
-		font.setColor(0.0f, 1.0f, 0.0f, 1.0f);
 	}
 	
 	public enum ScaleMode {

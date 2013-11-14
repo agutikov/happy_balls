@@ -36,7 +36,9 @@ public class BGame extends Game implements BGameInput {
 	@Override
 	public void create() {
 
-		Gdx.app.setLogLevel(Application.LOG_DEBUG);		
+		Gdx.app.setLogLevel(Application.LOG_DEBUG);	
+		
+		Gdx.app.debug("BGame", "create");
 
 		soundPlayer = new SoundPlayer();
 		gameScreen = new GameScreen();

@@ -48,6 +48,7 @@ public class GameScreen extends BScreen {
 		model.renderer = renderer;
 		renderer.bindRenderingModel(model);
 		model.loadTextures();
+		renderer.loadResources();
 	}
 	
 	public void init(Level lvl) {

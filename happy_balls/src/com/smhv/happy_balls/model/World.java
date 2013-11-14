@@ -267,13 +267,14 @@ public class World implements WorldInput {
 		soundPlayer = sp;
 	}
 
-	private Enemy addEnemy(int x, int y) {
-		Enemy e = new Enemy(new Vector2(x, y));		
-		enemyCounter++;
-		allEnemies.put(e, enemyCounter);		
-		map[y][x].enemyEnter(e);
-		renderingModel.addEnemy(enemyCounter, new Vector2(x, y));
-		return e;
+	private void addEnemy(int x, int y) {
+		if (map[y][x].isPassable()) {		
+			Enemy e = new Enemy(new Vector2(x, y));		
+			enemyCounter++;
+			allEnemies.put(e, enemyCounter);		
+			map[y][x].enemyEnter(e);
+			renderingModel.addEnemy(enemyCounter, new Vector2(x, y));
+		}
 	}		
 	private void rmEnemy(Enemy e) {		
 		int index = allEnemies.get(e);

@@ -51,8 +51,7 @@ public class WorldRenderer extends BRenderer {
 
 	
 	public void setCamera(float x, float y){
-		camera.position.set((x+0.5f)*ppuX, (y+0.5f)*ppuY, 0);
-		camera.update();
+		super.setCamera((x+0.5f)*ppuX, (y+0.5f)*ppuY);
 	}	
 	
 

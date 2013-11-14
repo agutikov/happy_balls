@@ -11,6 +11,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.smhv.happy_balls.GameInputController.Keys;
 import com.smhv.happy_balls.render.BRenderer;
+import com.smhv.happy_balls.render.BRenderer.ResizeMode;
 import com.smhv.happy_balls.sound.SoundPlayer;
 
 public class MenuScreen extends BScreen implements InputProcessor {
@@ -36,10 +37,13 @@ public class MenuScreen extends BScreen implements InputProcessor {
 			
 			this.screen = screen;
 			
-			scaleMode = ScaleMode.NON_SCALE_FIXED_VIEWPORT;
-			
-			camera.position.set(CAMERA_WIDTH / 2, CAMERA_HEIGHT / 2, 0);
-			camera.update();
+			resizeMode = ResizeMode.NON_SCALE;
+
+			setCamera(CAMERA_WIDTH / 2, CAMERA_HEIGHT / 2);
+		}
+		
+		private void drawRegion(TextureRegion r, float x , float y) {
+			spriteBatch.draw(r, x, y, r.getRegionWidth(), r.getRegionHeight());
 		}
 		
 		public void render() {
@@ -49,20 +53,20 @@ public class MenuScreen extends BScreen implements InputProcessor {
 			
 			spriteBatch.disableBlending();
 			
-			spriteBatch.draw(background, 0, 0);
+			drawRegion(screen.background, 0, 0);
 
 			spriteBatch.enableBlending();
 			
 			if (highlightOn) {
-				spriteBatch.draw(highlight, buttons[hightlightIndex].x - 150, 
-											buttons[hightlightIndex].y - 70);
+				drawRegion(screen.highlight, screen.buttons[screen.hightlightIndex].x - 150, 
+						screen.buttons[screen.hightlightIndex].y - 70);
 			}
 			
-			spriteBatch.draw(title, 50, height-20 - title.getRegionHeight());
+			drawRegion(screen.title, 50, modelHeight-20 - screen.title.getRegionHeight());
 			
-			spriteBatch.draw(start, buttons[0].x, buttons[0].y);
-			spriteBatch.draw(settings, buttons[1].x, buttons[1].y);		
-			spriteBatch.draw(quit, buttons[2].x, buttons[2].y);
+			drawRegion(screen.start, screen.buttons[0].x, screen.buttons[0].y);
+			drawRegion(screen.settings, screen.buttons[1].x, screen.buttons[1].y);		
+			drawRegion(screen.quit, screen.buttons[2].x, screen.buttons[2].y);
 			
 			
 			spriteBatch.end();				
@@ -76,23 +80,26 @@ public class MenuScreen extends BScreen implements InputProcessor {
 	Rectangle buttons[] = new Rectangle[3];
 
 	
+	float modelWidth = 840;
+	float modelHeight = 480;
+	
 	public MenuScreen() {
 		continuousRendering = false;
 		
 		renderer = new MenuRenderer(this);
 	}
 	
+	float touchHeight;
 	
-	int width;
-	int height;
+	float touchXOff = 0;
+	float touchYOff = 0;
 	
 	public void loadResources() {
 		backgroundTexture = new Texture(Gdx.files.internal("graphics/game_menu_bg.png"));
 		
 		background = new TextureRegion(backgroundTexture, 0, 0, 840, 480);
 		
-		width = background.getRegionWidth();
-		height = background.getRegionHeight();
+		touchHeight = background.getRegionHeight();
 		
 
 		textTexture = new Texture(Gdx.files.internal("graphics/game_menu_text.png"));
@@ -100,9 +107,9 @@ public class MenuScreen extends BScreen implements InputProcessor {
 		int w = textTexture.getWidth();
 		int h = textTexture.getHeight();
 		
-		int h1 = 50;
-		int h2 = 70;
-		int h3 = h - 3*h2 - h1;
+		int h1 = 51;
+		int h2 = 71;
+		int h3 = h - 3*h2 - h1 - 10;
 		
 		title = new TextureRegion(textTexture, 0, 0, 350, h1);
 		
@@ -113,17 +120,17 @@ public class MenuScreen extends BScreen implements InputProcessor {
 		highlight = new TextureRegion(textTexture, 0, h-h3, 650, h3);
 		
 
-		buttons[0] = new Rectangle(width-120 - start.getRegionWidth(), 
-				height-100 - start.getRegionHeight(), 
+		buttons[0] = new Rectangle(modelWidth-120 - start.getRegionWidth(), 
+				modelHeight-100 - start.getRegionHeight(), 
 				start.getRegionWidth(), start.getRegionHeight());
 		
-		buttons[1] = new Rectangle(width-20 - settings.getRegionWidth(), 
-				height-100 - start.getRegionHeight() 
+		buttons[1] = new Rectangle(modelWidth-20 - settings.getRegionWidth(), 
+				modelHeight-100 - start.getRegionHeight() 
 				- 50 - settings.getRegionHeight(), 
 				settings.getRegionWidth(), settings.getRegionHeight());
 		
-		buttons[2] = new Rectangle(width-120 - quit.getRegionWidth(), 
-				height-100 - start.getRegionHeight() 
+		buttons[2] = new Rectangle(modelWidth-120 - quit.getRegionWidth(), 
+				modelHeight-100 - start.getRegionHeight() 
 				- 50 - settings.getRegionHeight() 
 				- 50 - quit.getRegionHeight(), 
 				quit.getRegionWidth(), quit.getRegionHeight());
@@ -151,7 +158,7 @@ public class MenuScreen extends BScreen implements InputProcessor {
 	private void changeSelection(float x, float y) {			
 		int i = 0;
 		for (Rectangle r : buttons) {
-			if (r.contains(x - renderer.viewport.x, height-y - renderer.viewport.y)) {
+			if (r.contains(x - touchXOff, touchHeight - y - touchYOff)) {
 				hightlightIndex = i;
 				highlightOn = true;
 			}
@@ -201,8 +208,10 @@ public class MenuScreen extends BScreen implements InputProcessor {
 	public void resize(int width, int height) {
 		Gdx.app.debug("MenuScreen", "resize("+ width +", "+ height +")");
 		
-		this.width = width;
-		this.height = height;
+		touchHeight = height;
+		
+		touchXOff = (width - modelWidth) / 2;
+		touchYOff = (height - modelHeight) / 2;
 		
 		renderer.setSize(width, height);
 		Gdx.graphics.requestRendering();

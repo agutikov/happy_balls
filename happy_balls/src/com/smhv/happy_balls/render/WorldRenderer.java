@@ -29,6 +29,9 @@ public class WorldRenderer extends BRenderer {
 	float fps = 0;
 	float fpsCount = 0;
 	long lastTime;
+		
+	private float ppuX = 32;	// пикселей на ячейку мира по X 
+	private float ppuY = 32;	// пикселей на ячейку мира по Y 
 	
 	private WorldRenderingModel world;
 	
@@ -38,11 +41,7 @@ public class WorldRenderer extends BRenderer {
 	// TODO: рендерить только то что visible
 	// TODO: нормально рисовать текстуры с альфаканалом - без усиления контрастности со временем
 
-	// TODO: добавить partialRendering - рендерить только то что попадает в viewport
-	//TODO: добавить fpslogger и вывод на экран
 	//TODO: сравнить рендеринг всего и только вьюпорта
-	
-	
     
     public void loadResources() {		
 		font = new BitmapFont(Gdx.files.internal("fonts/font_exocet.fnt"));
@@ -56,8 +55,7 @@ public class WorldRenderer extends BRenderer {
 	
 
 	public void render() {				
-		prepareRender();
-		
+		prepareRender();		
 	
 		long curr = TimeUtils.millis();
 		if (curr - lastTime > 1000) {			
@@ -66,8 +64,7 @@ public class WorldRenderer extends BRenderer {
 			lastTime = curr;			
 		//	fpsLogger.log();
 		}
-		fpsCount++;
-		
+		fpsCount++;		
 		
 		spriteBatch.begin();		
 		renderMap();	
@@ -78,27 +75,6 @@ public class WorldRenderer extends BRenderer {
 		renderFPS();
 		spriteBatch.disableBlending();
 		spriteBatch.end();			 
-	}
-	
-	//TODO: использовать размеры объектов?
-	private void draw(TextureRegion tr, float x, float y) {
-		spriteBatch.draw(tr, 
-				(x)*ppuX, 
-				(y)*ppuY, 
-				0, 0, 
-				1*ppuX, 1*ppuY, 
-				1, 1, 
-				0);
-	}
-
-	private void drawRotated(TextureRegion tr, float x, float y, float rot) {
-		spriteBatch.draw(tr, 
-				(x)*ppuX, 
-				(y)*ppuY, 
-				0.5f*ppuY, 0.5f*ppuX, 
-				1*ppuX, 1*ppuY, 
-				1, 1, 
-				rot);
 	}
 
 	private void renderExplosions() {
@@ -125,8 +101,10 @@ public class WorldRenderer extends BRenderer {
 			spriteBatch.setColor(world.protagonistRenderObject.tintColor);
 		}
 		draw(world.protagonistRenderObject.currentFrame(), 
-				world.protagonistRenderObject.getPos().x, 
-				world.protagonistRenderObject.getPos().y);	
+				world.protagonistRenderObject.getPos().x*ppuX, 
+				world.protagonistRenderObject.getPos().y*ppuY,
+				world.protagonistRenderObject.currentFrame().getRegionWidth(),
+				world.protagonistRenderObject.currentFrame().getRegionHeight());	
 		if (world.protagonistRenderObject.tint) {
 			spriteBatch.setColor(1f, 1f, 1f, 1f);	
 		}
@@ -135,8 +113,10 @@ public class WorldRenderer extends BRenderer {
 	private void renderEnemies() {
 		for (Entry<Integer, RenderFreeObject> entry : world.enemies.entrySet()) {
 			draw(entry.getValue().currentFrame(), 
-					entry.getValue().getPos().x, 
-					entry.getValue().getPos().y);
+					entry.getValue().getPos().x*ppuX, 
+					entry.getValue().getPos().y*ppuY,
+					entry.getValue().currentFrame().getRegionWidth(),
+					entry.getValue().currentFrame().getRegionHeight());
 		}
 		
 	}
@@ -147,18 +127,28 @@ public class WorldRenderer extends BRenderer {
 		
 		if (cell.top == null || !cell.top.texture.isFullHover) {
 			if (cell.bottom != null) {
-				drawRotated(cell.bottom.texture.textureRegion, x, y, cell.bottom.rot);
+				drawRotated(cell.bottom.texture.textureRegion, x*ppuX, y*ppuY,
+						cell.bottom.texture.textureRegion.getRegionWidth(),
+						cell.bottom.texture.textureRegion.getRegionHeight(),
+						cell.bottom.rot);
 			}
 		}
 		if (cell.top != null) {
-			drawRotated(cell.top.texture.textureRegion, x, y, cell.top.rot);
+			drawRotated(cell.top.texture.textureRegion, x*ppuX, y*ppuY,
+					cell.top.texture.textureRegion.getRegionWidth(),
+					cell.top.texture.textureRegion.getRegionHeight(),
+					cell.top.rot);
 		}
 		if (cell.box != null) {
-			draw(cell.box.currentFrame(), x, y);
+			draw(cell.box.currentFrame(), x*ppuX, y*ppuY,
+					cell.box.currentFrame().getRegionWidth(),
+					cell.box.currentFrame().getRegionHeight());
 		}
 		if (cell.bomb != null) {
 			spriteBatch.enableBlending();
-			draw(cell.bomb.currentFrame(), x, y);
+			draw(cell.bomb.currentFrame(), x*ppuX, y*ppuY,
+					cell.bomb.currentFrame().getRegionWidth(),
+					cell.bomb.currentFrame().getRegionHeight());
 			spriteBatch.disableBlending();
 		}
 	}

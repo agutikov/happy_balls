@@ -41,11 +41,6 @@ public class BGame extends Game implements BGameInput {
 
 		Gdx.app.debug("BGame", "DisplayMode: " + Gdx.graphics.getDesktopDisplayMode().width + "x" + Gdx.graphics.getDesktopDisplayMode().height);
 		
-		Gdx.graphics.setDisplayMode(Gdx.graphics.getDesktopDisplayMode().width, Gdx.graphics.getDesktopDisplayMode().height, true);
-		Gdx.graphics.setVSync(true);
-			
-		
-
 		soundPlayer = new SoundPlayer();
 		gameScreen = new GameScreen();
 		menuScreen = new MenuScreen();

@@ -33,6 +33,13 @@ public class GameInputController implements InputProcessor {
 		this.gameInput = gameInput;
 	}
 	
+	/*
+	 * TODO: связать InputController и Renderer чтобы координаты соответсвовали изоборажению
+	 * может вызывать setSize из рендерера?
+	 */
+	public void setSize(float x, float y, float w, float h) {
+		
+	}
 
 	@Override
 	public boolean keyDown(int keycode) {

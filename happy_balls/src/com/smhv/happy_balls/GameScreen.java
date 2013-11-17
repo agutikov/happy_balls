@@ -3,6 +3,7 @@ package com.smhv.happy_balls;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.utils.TimeUtils;
 
 
 import com.smhv.happy_balls.level.Level;
@@ -74,14 +75,39 @@ public class GameScreen extends BScreen {
 	}
 
 	
+	long inputTime;
+	long updateTime;
+	long renderTime;
+	
+	long lastTime = 0;
 
 	@Override
 	public void render(float delta) {	
 		//TODO: deWiTTERS game loop
 		
+
+		long curr = TimeUtils.millis();
+		if (curr - lastTime > 1000) {	
+			Gdx.app.debug("prof", "" + inputTime + ", " + updateTime + ", " + renderTime);
+			lastTime = curr;
+		}
+		
+		
+		long tmp = TimeUtils.millis();
 		input.processInput();		
-		world.update(delta);			
+		
+		inputTime = TimeUtils.millis() - tmp;
+		tmp = TimeUtils.millis();
+		
+		world.update(delta);	
+		
+		updateTime = TimeUtils.millis() - tmp;
+		tmp = TimeUtils.millis();
+		
 		renderer.render();
+		
+		renderTime = TimeUtils.millis() - tmp;
+		tmp = TimeUtils.millis();
 	}
 
 	@Override

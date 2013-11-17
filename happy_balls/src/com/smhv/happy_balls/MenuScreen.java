@@ -36,14 +36,8 @@ public class MenuScreen extends BScreen implements InputProcessor {
 			super();
 			
 			this.screen = screen;
-			
-			resizeMode = ResizeMode.NON_SCALE;
 
 			setCamera(CAMERA_WIDTH / 2, CAMERA_HEIGHT / 2);
-		}
-		
-		private void drawRegion(TextureRegion r, float x , float y) {
-			spriteBatch.draw(r, x, y, r.getRegionWidth(), r.getRegionHeight());
 		}
 		
 		public void render() {
@@ -53,20 +47,20 @@ public class MenuScreen extends BScreen implements InputProcessor {
 			
 			spriteBatch.disableBlending();
 			
-			drawRegion(screen.background, 0, 0);
+			draw(screen.background, 0, 0);
 
 			spriteBatch.enableBlending();
 			
 			if (highlightOn) {
-				drawRegion(screen.highlight, screen.buttons[screen.hightlightIndex].x - 150, 
+				draw(screen.highlight, screen.buttons[screen.hightlightIndex].x - 150, 
 						screen.buttons[screen.hightlightIndex].y - 70);
 			}
 			
-			drawRegion(screen.title, 50, modelHeight-20 - screen.title.getRegionHeight());
+			draw(screen.title, 50, modelHeight-20 - screen.title.getRegionHeight());
 			
-			drawRegion(screen.start, screen.buttons[0].x, screen.buttons[0].y);
-			drawRegion(screen.settings, screen.buttons[1].x, screen.buttons[1].y);		
-			drawRegion(screen.quit, screen.buttons[2].x, screen.buttons[2].y);
+			draw(screen.start, screen.buttons[0].x, screen.buttons[0].y);
+			draw(screen.settings, screen.buttons[1].x, screen.buttons[1].y);		
+			draw(screen.quit, screen.buttons[2].x, screen.buttons[2].y);
 			
 			
 			spriteBatch.end();				

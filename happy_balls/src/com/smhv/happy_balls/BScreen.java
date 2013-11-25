@@ -3,6 +3,7 @@ package com.smhv.happy_balls;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.math.Vector2;
 import com.smhv.happy_balls.sound.SoundPlayer;
 
 public abstract class BScreen implements Screen {
@@ -13,6 +14,12 @@ public abstract class BScreen implements Screen {
 	protected boolean continuousRendering = false;
 	
 	protected boolean running = false;
+	
+	protected boolean fullScreen = false;
+	protected boolean vsync = false;
+	
+	private int width;
+	private int height;
 	
 	/*
 	 * Нужен для того чтобы из экрана можно было перейти в другой экран.
@@ -50,13 +57,30 @@ public abstract class BScreen implements Screen {
 
 		Gdx.input.setInputProcessor(getInputProcessor());
 
+		if (Gdx.graphics.isFullscreen() != fullScreen) {
+			if (fullScreen) {			
+				Gdx.graphics.setDisplayMode(Gdx.graphics.getDesktopDisplayMode().width, Gdx.graphics.getDesktopDisplayMode().height, true);
+			} else {
+				Gdx.graphics.setDisplayMode(width, height, false);
+			}
+		} else {
+			if (!fullScreen) {
+				width = Gdx.graphics.getWidth();
+				height = Gdx.graphics.getHeight();				
+			}
+		}
+
+		
+		Gdx.graphics.setVSync(vsync);
+
+		
 		running = true;
 	}
 
 	@Override
 	public void hide() {		
-		Gdx.input.setInputProcessor(null);
-		
+		running = false;
+		Gdx.input.setInputProcessor(null);		
 		soundPlayer.stopTheme();
 	}
 	
@@ -86,8 +110,7 @@ public abstract class BScreen implements Screen {
 	}
 
 	@Override
-	public void dispose() {
-		running = false;		
+	public void dispose() {	
 	}
 	
 }

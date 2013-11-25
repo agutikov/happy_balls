@@ -28,6 +28,7 @@ public class GameScreen extends BScreen {
 	public GameScreen() {	
 		continuousRendering = true;
 		renderer = new WorldRenderer();
+		fullScreen = true;
 	}
 	
 	public void bindGame(BGameInput gameInput) {

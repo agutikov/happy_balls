@@ -40,15 +40,6 @@ public abstract class BRenderer {
 	protected Vector2 cameraPosition = new Vector2(0, 0);
 	private Rectangle cameraViewport = new Rectangle(-CAMERA_WIDTH/2, -CAMERA_HEIGHT/2, CAMERA_WIDTH, CAMERA_HEIGHT);
 	
-	public void setFullScreenMode(boolean mode) {
-		if (mode)
-			Gdx.graphics.setDisplayMode(Gdx.graphics.getDesktopDisplayMode().width, Gdx.graphics.getDesktopDisplayMode().height, mode);
-	}
-	
-	public void setVsync(boolean mode) {
-		Gdx.graphics.setVSync(mode);
-	}
-	
 	public void setCamera (float x, float y) {
 		cameraPosition.x = x;
 		cameraPosition.y = y;

@@ -31,7 +31,9 @@ public class WorldRenderingModel {
 	public RenderFreeObject protagonistRenderObject;		
 	public Map<Integer, RenderFreeObject> enemies;
 	ArrayList <RenderBoxObject> boxes;
-	ArrayList <RenderBoxObject> exploadedBoxes ;
+	ArrayList <RenderBoxObject> exploadedBoxes;
+	
+	public boolean bombingEnabled = true;
 		
 	/*
 	 * Convert orientation to degrees.
@@ -274,5 +276,13 @@ public class WorldRenderingModel {
 		boxTextureMap = new BoxTextureMap("graphics/box_sprite.png");		
 		
 		bombExplosionTextureMap = new BombExplosionTextureMap("graphics/bomb_sprite.png");
+	}
+
+	public void disableBombing() {
+		bombingEnabled = false;
+	}
+
+	public void enableBombing() {
+		bombingEnabled = true;
 	}
 }

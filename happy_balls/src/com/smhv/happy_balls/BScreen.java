@@ -12,6 +12,8 @@ public abstract class BScreen implements Screen {
 	
 	protected boolean continuousRendering = false;
 	
+	protected boolean running = false;
+	
 	/*
 	 * Нужен для того чтобы из экрана можно было перейти в другой экран.
 	 */
@@ -47,6 +49,8 @@ public abstract class BScreen implements Screen {
 		Gdx.graphics.setContinuousRendering(continuousRendering);
 
 		Gdx.input.setInputProcessor(getInputProcessor());
+
+		running = true;
 	}
 
 	@Override
@@ -72,16 +76,18 @@ public abstract class BScreen implements Screen {
 	@Override
 	public void pause() {
 		soundPlayer.pause();
+		running = false;
 	}
 
 	@Override
 	public void resume() {
 		soundPlayer.resume();
+		running = true;
 	}
 
 	@Override
 	public void dispose() {
-		
+		running = false;		
 	}
 	
 }

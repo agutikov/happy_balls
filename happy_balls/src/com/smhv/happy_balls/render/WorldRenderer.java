@@ -13,6 +13,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.FPSLogger;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -24,6 +25,10 @@ import com.smhv.happy_balls.render.WorldRenderingModel.RenderingCell;
 public class WorldRenderer extends BRenderer {
 
 	public FPSLogger fpsLogger = new FPSLogger();
+	
+
+	Texture controlsTexture;
+	TextureRegion controls[];
 	
 	BitmapFont font;
 	float fps = 0;
@@ -39,13 +44,19 @@ public class WorldRenderer extends BRenderer {
 		world = model;
 	}
 	// TODO: рендерить только то что visible
-	// TODO: нормально рисовать текстуры с альфаканалом - без усиления контрастности со временем
 
-	//TODO: сравнить рендеринг всего и только вьюпорта
-    
     public void loadResources() {		
 		font = new BitmapFont(Gdx.files.internal("fonts/font_exocet.fnt"));
 		font.setColor(0.0f, 1.0f, 0.0f, 1.0f);    	
+		
+		controlsTexture = new Texture(Gdx.files.internal("graphics/game_ui.png"));
+		controls = new TextureRegion[4];
+		
+		controls[0] = new TextureRegion(controlsTexture, 0, 0, 7*16, 7*16);
+		controls[1] = new TextureRegion(controlsTexture, 7*16, 0, 7*16, 7*16);
+		controls[2] = new TextureRegion(controlsTexture, 2*7*16, 0, 7*16, 7*16);
+
+		controls[3] = new TextureRegion(controlsTexture, 3*7*16, 0, 3*16, 3*16);
     }
 
 	
@@ -73,10 +84,24 @@ public class WorldRenderer extends BRenderer {
 		renderProtagonist();
 		renderExplosions();
 		renderFPS();
+		renderControls();
 		spriteBatch.disableBlending();
 		spriteBatch.end();			 
 	}
 
+	private void renderControls() {
+		
+		relativeDraw(RelativeMode.LEFT_BOTTOM, controls[0], 10, 10);
+
+		relativeDraw(RelativeMode.RIGHT_BOTTOM, controls[3], 10, viewport.height/2);
+		
+		if (world.bombingEnabled)
+			relativeDraw(RelativeMode.RIGHT_BOTTOM, controls[2], 10, 10);
+		else
+			relativeDraw(RelativeMode.RIGHT_BOTTOM, controls[1], 10, 10);
+			
+	}
+	
 	private void renderExplosions() {
 		for (int y = 0; y < world.renderingMap.length; y++) {
 			for (int x = 0; x < world.renderingMap[y].length; x++) {
@@ -87,7 +112,9 @@ public class WorldRenderer extends BRenderer {
 					// тупа один спрайт для каждого статического элемента
 					
 					world.bombExplosionTextureMap.explosionSprites.get(
-							world.renderingMap[y][x].part).setPosition(x*ppuX, y*ppuY);
+							world.renderingMap[y][x].part).setPosition(
+									x*ppuX - cameraPosition.x, 
+									y*ppuY - cameraPosition.y);
 					
 					world.bombExplosionTextureMap.explosionSprites.get(
 							world.renderingMap[y][x].part).draw(spriteBatch);
@@ -165,8 +192,8 @@ public class WorldRenderer extends BRenderer {
 	
 	private void renderFPS() {
 		font.draw(spriteBatch, String.format("%3.1f", fps), 
-				camera.position.x - viewport.width/2 + 16, 
-				camera.position.y - viewport.height/2 + 48);
+				-viewport.width/2 + 16, 
+				+viewport.height/2 - 16);
 	}
 	
 }

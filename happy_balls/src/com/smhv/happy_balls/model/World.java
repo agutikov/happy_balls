@@ -33,6 +33,8 @@ public class World implements WorldInput {
 	private float respawnTime = 2f;
 	private float respawnTimeLeft;
 	
+	private float putBombTimeout = 3f;
+	private float putBombTimeLeft = 0f;
 
 	private boolean putBombFlag;
 	
@@ -517,6 +519,7 @@ public class World implements WorldInput {
 			soundPlayer.playDeath();
 			renderingModel.kill();	
 			respawnTimeLeft = respawnTime;
+			renderingModel.disableBombing();
 		}
 	}
 	
@@ -574,7 +577,7 @@ public class World implements WorldInput {
 			moveEnemies(delta);
 			enemyInteraction();
 			
-			processBombing();
+			processBombing(delta);
 			updateBombs(delta);
 			updateExplosions(delta);
 			
@@ -589,6 +592,7 @@ public class World implements WorldInput {
 					protagonist.setPos(respawn.x, respawn.y);
 					renderingModel.moveProtagonistTo(respawn.x, respawn.y);
 					renderingModel.highlightProtagonist();
+					renderingModel.enableBombing();
 				}
 			}
 			if (win) {
@@ -598,7 +602,14 @@ public class World implements WorldInput {
 		}
 	}
 	
-	private void processBombing() {
+	private void processBombing(float delta) {
+		if (putBombTimeLeft > 0) {
+			putBombTimeLeft -= delta;
+			if (putBombTimeLeft < 0)
+				putBombTimeLeft = 0;
+			if (putBombTimeLeft == 0)
+				renderingModel.enableBombing();
+		}
 		if (putBombFlag) {			
 			int x = Math.round(protagonist.getPos().x);
 			int y = Math.round(protagonist.getPos().y);	
@@ -606,6 +617,8 @@ public class World implements WorldInput {
 			addBomb(x, y);
 			
 			putBombFlag = false;
+			putBombTimeLeft = putBombTimeout;
+			renderingModel.disableBombing();
 		}
 	}
 
@@ -617,9 +630,9 @@ public class World implements WorldInput {
 
 				soundPlayer.playExplosion();
 				
-				Explosion b = new Explosion(entry.getValue().x, entry.getValue().y);
-				explosions.add(b);
-				b.perform(this);
+				Explosion e = new Explosion(entry.getValue().x, entry.getValue().y);
+				explosions.add(e);
+				e.perform(this);
 				removedBombs.add(entry.getKey());
 			}
 			
@@ -674,7 +687,7 @@ public class World implements WorldInput {
 	@Override
 	public void putBomb() {
 		//TODO: move setBomb to Protagonist class
-		if (protagonist.alive) {
+		if (protagonist.alive && putBombTimeLeft == 0) {
 			putBombFlag = true;
 		}
 	}

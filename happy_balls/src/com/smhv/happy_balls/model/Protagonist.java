@@ -10,6 +10,7 @@ public class Protagonist extends FreeObject {
 	public float safeTime;
 	private boolean safeModeDisabled = true;
 	
+	
 	public void resurrection() {
 		alive = true;
 		safeTime = 3f;
@@ -43,7 +44,7 @@ public class Protagonist extends FreeObject {
 	public Protagonist(Vector2 pos) {
 		super("protagonist", pos);
 		speed = 5f;
-		safeTime = 0f;		
+		safeTime = 0f;	
 	}
 	
 	public void go(FreeObject.Direction dir) {

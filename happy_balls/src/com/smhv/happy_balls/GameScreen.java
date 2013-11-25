@@ -85,35 +85,37 @@ public class GameScreen extends BScreen {
 	public void render(float delta) {	
 		//TODO: deWiTTERS game loop
 		
-
-		long curr = TimeUtils.millis();
-		if (curr - lastTime > 1000) {	
-			Gdx.app.debug("prof", "" + inputTime + ", " + updateTime + ", " + renderTime);
-			lastTime = curr;
+		if (running) {
+			long curr = TimeUtils.millis();
+			if (curr - lastTime > 1000) {	
+				// Gdx.app.debug("prof", "" + inputTime + ", " + updateTime + ", " + renderTime);
+				lastTime = curr;
+			}
+			
+			
+			long tmp = TimeUtils.millis();
+			input.processInput();		
+			
+			inputTime = TimeUtils.millis() - tmp;
+			tmp = TimeUtils.millis();
+			
+			world.update(delta);	
+			
+			updateTime = TimeUtils.millis() - tmp;
+			tmp = TimeUtils.millis();
+			
+			renderer.render();
+			
+			renderTime = TimeUtils.millis() - tmp;
+			tmp = TimeUtils.millis();
 		}
-		
-		
-		long tmp = TimeUtils.millis();
-		input.processInput();		
-		
-		inputTime = TimeUtils.millis() - tmp;
-		tmp = TimeUtils.millis();
-		
-		world.update(delta);	
-		
-		updateTime = TimeUtils.millis() - tmp;
-		tmp = TimeUtils.millis();
-		
-		renderer.render();
-		
-		renderTime = TimeUtils.millis() - tmp;
-		tmp = TimeUtils.millis();
 	}
 
 	@Override
 	public void resize(int width, int height) {
 		
 		renderer.setSize(width, height);
+		input.setSize(renderer.viewport);
 
 	}
 
@@ -127,6 +129,5 @@ public class GameScreen extends BScreen {
 		return input;
 	}
 
-	
 	
 }

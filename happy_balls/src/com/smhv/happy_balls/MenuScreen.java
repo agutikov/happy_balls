@@ -47,7 +47,7 @@ public class MenuScreen extends BScreen implements InputProcessor {
 			
 			spriteBatch.disableBlending();
 			
-			draw(screen.background, 0, 0);
+			relativeDraw(RelativeMode.CENTER, screen.background, 0, 0);
 
 			spriteBatch.enableBlending();
 			
@@ -56,7 +56,7 @@ public class MenuScreen extends BScreen implements InputProcessor {
 						screen.buttons[screen.hightlightIndex].y - 70);
 			}
 			
-			draw(screen.title, 50, modelHeight-20 - screen.title.getRegionHeight());
+			relativeDraw(RelativeMode.LEFT_TOP, screen.title, 50, 20);
 			
 			draw(screen.start, screen.buttons[0].x, screen.buttons[0].y);
 			draw(screen.settings, screen.buttons[1].x, screen.buttons[1].y);		
